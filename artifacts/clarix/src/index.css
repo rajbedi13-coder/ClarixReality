@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -32,70 +32,85 @@
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
 
-  --radius-sm: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 1px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);
-  --radius-xl: calc(var(--radius) + 6px);
 }
 
-/* ─── Light mode ─── */
+/* ─── Light mode (paper) ─── */
 :root {
-  --background: 0 0% 99%;
-  --foreground: 220 13% 10%;
-  --border: 220 13% 89%;
+  --background: 38 25% 97%;
+  --foreground: 220 13% 9%;
+  --border: 38 14% 84%;
   --card: 0 0% 100%;
-  --card-foreground: 220 13% 10%;
+  --card-foreground: 220 13% 9%;
   --popover: 0 0% 100%;
-  --popover-foreground: 220 13% 10%;
-  --primary: 220 13% 10%;
+  --popover-foreground: 220 13% 9%;
+  --primary: 220 13% 9%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 220 10% 95%;
-  --secondary-foreground: 220 13% 10%;
-  --muted: 220 10% 95%;
-  --muted-foreground: 220 8% 46%;
-  --accent: 32 60% 40%;
+  --secondary: 38 16% 92%;
+  --secondary-foreground: 220 13% 9%;
+  --muted: 38 16% 92%;
+  --muted-foreground: 220 8% 42%;
+  --accent: 28 55% 38%;
   --accent-foreground: 0 0% 100%;
-  --destructive: 0 72% 51%;
+  --destructive: 0 70% 48%;
   --destructive-foreground: 0 0% 100%;
-  --input: 220 13% 89%;
-  --ring: 32 60% 40%;
-  --surface: 220 10% 97%;
+  --input: 38 14% 84%;
+  --ring: 28 55% 38%;
+  --surface: 38 18% 94%;
 
   --app-font-sans: 'Source Serif 4', Georgia, serif;
   --app-font-serif: 'Cormorant Garamond', 'Times New Roman', serif;
   --app-font-mono: 'JetBrains Mono', 'Courier New', monospace;
-
-  --radius: 2px;
+  --radius: 1px;
 }
 
-/* ─── Dark mode ─── */
+/* ─── Dark mode (atmospheric) ─── */
 .dark {
-  --background: 222 14% 5%;
-  --foreground: 38 18% 90%;
-  --border: 222 14% 13%;
-  --card: 220 13% 7%;
-  --card-foreground: 38 18% 90%;
-  --popover: 220 13% 7%;
-  --popover-foreground: 38 18% 90%;
-  --primary: 38 18% 90%;
-  --primary-foreground: 222 14% 5%;
-  --secondary: 222 14% 11%;
-  --secondary-foreground: 38 18% 90%;
-  --muted: 222 14% 11%;
-  --muted-foreground: 220 8% 50%;
-  --accent: 34 48% 56%;
-  --accent-foreground: 222 14% 5%;
+  --background: 220 14% 4%;
+  --foreground: 38 22% 91%;
+  --border: 222 14% 12%;
+  --card: 220 14% 6%;
+  --card-foreground: 38 22% 91%;
+  --popover: 220 14% 6%;
+  --popover-foreground: 38 22% 91%;
+  --primary: 38 22% 91%;
+  --primary-foreground: 220 14% 4%;
+  --secondary: 222 14% 10%;
+  --secondary-foreground: 38 22% 91%;
+  --muted: 222 14% 10%;
+  --muted-foreground: 220 8% 52%;
+  --accent: 32 50% 60%;
+  --accent-foreground: 220 14% 4%;
   --destructive: 0 55% 42%;
   --destructive-foreground: 0 0% 100%;
-  --input: 222 14% 13%;
-  --ring: 34 48% 56%;
-  --surface: 220 13% 9%;
+  --input: 222 14% 12%;
+  --ring: 32 50% 60%;
+  --surface: 220 14% 7%;
 }
 
 @layer base {
   * { @apply border-border; }
-  body { @apply font-sans antialiased bg-background text-foreground; }
-  h1, h2, h3, h4 { letter-spacing: -0.01em; }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "kern";
+  }
+  h1, h2, h3, h4 { letter-spacing: -0.015em; }
+  ::selection { background: hsl(var(--accent) / 0.3); color: hsl(var(--foreground)); }
+}
+
+/* ─── Atmospheric grain overlay (dark mode only, fixed position) ─── */
+.dark body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    radial-gradient(ellipse at 20% 10%, hsla(32, 50%, 50%, 0.04), transparent 50%),
+    radial-gradient(ellipse at 90% 90%, hsla(220, 30%, 30%, 0.06), transparent 60%);
+  mix-blend-mode: screen;
 }
 
 /* ─── Ticker marquee ─── */
@@ -111,19 +126,50 @@
 
 /* ─── Fade-up entrance ─── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-up {
-  animation: fadeUp 0.5s ease-out forwards;
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+.animate-fade-up-delayed { animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards; opacity: 0; }
+.animate-fade-up-slow    { animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards; opacity: 0; }
 
-/* ─── Subtle pulse for banner ─── */
+/* ─── Quote slow rotation ─── */
+@keyframes softFade {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}
+.animate-soft-fade { animation: softFade 12s ease-in-out infinite; }
+
+/* ─── Subtle banner pulse ─── */
 @keyframes subtlePulse {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.75; }
+  50%       { opacity: 0.7; }
 }
 .animate-soft-pulse { animation: subtlePulse 2.5s ease-in-out infinite; }
 
-/* ─── Prose overrides ─── */
+/* ─── Image vignette utility for hero/featured ─── */
+.img-vignette {
+  position: relative;
+}
+.img-vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, hsl(var(--background) / 0.7) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* ─── Drop cap for editorial paragraphs ─── */
+.dropcap::first-letter {
+  font-family: var(--app-font-serif);
+  font-size: 4.5em;
+  float: left;
+  line-height: 0.85;
+  margin: 0.05em 0.08em -0.05em 0;
+  color: hsl(var(--accent));
+  font-weight: 500;
+}
+
 .prose { max-width: none; }
