@@ -11,11 +11,9 @@ import Parser from "rss-parser";
 import { eq, and, ilike, sql } from "drizzle-orm";
 import { db, articlesTable, sourcesTable, ingestionRunsTable, type Source, type InsertArticle } from "@workspace/db";
 import { logger } from "../lib/logger";
+import { validateFeedUrl, safeFetchFeed } from "../lib/feedUrlValidator";
 
-const parser = new Parser({
-  timeout: 15_000,
-  headers: { "User-Agent": "ClarixReality/1.0 (+https://clarix.ai)" },
-});
+const parser = new Parser();
 
 function hash(str: string): string {
   let h = 5381;
@@ -130,7 +128,11 @@ export async function ingestSource(source: Source): Promise<{ fetched: number; i
   let error: string | undefined;
 
   try {
-    const feed = await parser.parseURL(source.feedUrl);
+    const urlError = await validateFeedUrl(source.feedUrl);
+    if (urlError) throw new Error(`Feed URL blocked: ${urlError}`);
+
+    const xml = await safeFetchFeed(source.feedUrl);
+    const feed = await parser.parseString(xml);
     fetched = feed.items?.length ?? 0;
 
     for (const item of feed.items ?? []) {

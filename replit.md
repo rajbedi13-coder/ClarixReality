@@ -59,6 +59,11 @@ AI-curated intelligence briefings platform for curious professionals who want si
 - Subscription model: 1 month free trial on signup, then paid or access ends
 - Payment gateway to be added later (Stripe)
 
+## Security
+
+- `ADMIN_TOKEN` **must** be set as a secret (via Replit Secrets / environment variables), never committed to `.replit` or source code. Set a strong, randomly-generated value before deploying. Without it in production the API server returns 503 on all admin routes.
+- Feed URLs submitted through the admin console are validated server-side: only `http`/`https` protocols are accepted, private/loopback/link-local IPs and known cloud-metadata hostnames are blocked, and the resolved IP of the hostname is also checked to prevent DNS rebinding attacks.
+
 ## Gotchas
 
 - Always run `pnpm run typecheck:libs` after changing DB schema before running API server typecheck

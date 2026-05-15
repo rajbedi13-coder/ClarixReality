@@ -37,4 +37,3 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.production]
-ADMIN_TOKEN = "aIYK721n6XfrNJaYkpEaQdg4qKTVBDtUqdydh7aUex0"

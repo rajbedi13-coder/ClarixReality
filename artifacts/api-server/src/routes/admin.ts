@@ -2,6 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from "express"
 import { eq, desc, sql } from "drizzle-orm";
 import { db, articlesTable, sourcesTable, ingestionRunsTable } from "@workspace/db";
 import { ingestSource, ingestAllActive } from "../ingestion/index";
+import { validateFeedUrl } from "../lib/feedUrlValidator";
 
 const router = Router();
 
@@ -117,6 +118,11 @@ router.post("/admin/sources", async (req: Request, res: Response): Promise<void>
     res.status(400).json({ error: "name and feedUrl are required" });
     return;
   }
+  const urlError = await validateFeedUrl(feedUrl);
+  if (urlError) {
+    res.status(400).json({ error: urlError });
+    return;
+  }
   try {
     const [src] = await db.insert(sourcesTable).values({
       name,
@@ -141,9 +147,17 @@ router.patch("/admin/sources/:id", async (req: Request, res: Response): Promise<
     res.status(400).json({ error: "Invalid id" });
     return;
   }
+  const body = (req.body ?? {}) as Record<string, unknown>;
+  if ("feedUrl" in body) {
+    const urlError = await validateFeedUrl(String(body["feedUrl"]));
+    if (urlError) {
+      res.status(400).json({ error: urlError });
+      return;
+    }
+  }
   const allowed = ["name", "feedUrl", "homepageUrl", "categorySlug", "defaultContentType", "defaultImpact", "trustTier", "autoPublish", "isActive"] as const;
   const patch: Record<string, unknown> = {};
-  for (const k of allowed) if (k in (req.body ?? {})) patch[k] = (req.body as Record<string, unknown>)[k];
+  for (const k of allowed) if (k in body) patch[k] = body[k];
   const [updated] = await db.update(sourcesTable).set(patch).where(eq(sourcesTable.id, id)).returning();
   res.json({ source: updated });
 });
