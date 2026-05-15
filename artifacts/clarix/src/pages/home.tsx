@@ -153,7 +153,15 @@ export default function Home() {
             <span className="text-border">·</span>
             <TrustSignal icon="◉" text="No meme feed" />
             <span className="text-border hidden md:block">·</span>
-            <TrustSignal icon="▽" text={`${stats?.briefsPublished ?? "—"} briefs indexed`} className="hidden md:flex" />
+            <TrustSignal
+              icon="▽"
+              text={
+                stats
+                  ? `${stats.briefsLast24h} briefs in last 24h · refreshed every ${stats.refreshCadenceHours}h`
+                  : "Refreshed continuously"
+              }
+              className="hidden md:flex"
+            />
           </div>
         </div>
       )}
@@ -196,12 +204,22 @@ export default function Home() {
 
             {stats && (
               <div className="space-y-4 pt-2 border-t border-border">
-                <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Platform</p>
-                <div className="space-y-3">
-                  <Stat value={stats.briefsPublished} label="Briefs" />
-                  <Stat value={stats.sourcesMonitored} label="Sources tracked" />
-                  <Stat value={stats.aiAccuracy} label="AI accuracy" />
+                <div className="flex items-center justify-between">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">The desk</p>
+                  <span className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider text-emerald-400/70">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/70 animate-soft-pulse" />
+                    Live
+                  </span>
                 </div>
+                <div className="space-y-3">
+                  <Stat value={`${stats.briefsLast24h}`} label="Briefs in last 24h" />
+                  <Stat value={`${stats.sourcesMonitored}`} label="Sources represented" />
+                  <Stat value={`${stats.sectionsLive}`} label="Sections live" />
+                </div>
+                <p className="font-mono text-[10px] text-muted-foreground/70 leading-relaxed pt-1 border-t border-border/40 mt-2">
+                  ◈ Updated {stats.lastUpdated} · refreshed every {stats.refreshCadenceHours}h.<br />
+                  <span className="italic text-muted-foreground/50">Archive of {stats.briefsPublished}+ briefs and growing.</span>
+                </p>
               </div>
             )}
 
@@ -264,7 +282,11 @@ export default function Home() {
           <section className="px-6 lg:px-10 py-10">
             <div className="flex items-baseline justify-between mb-6">
               <SectionLabel>{searchQuery ? `Results for "${searchQuery}"` : currentCatName ?? "The Brief · Latest"}</SectionLabel>
-              {knownTotal > 0 && <span className="font-mono text-[11px] text-muted-foreground">{knownTotal} articles</span>}
+              {knownTotal > 0 && (
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  {knownTotal}+ briefs · refreshed continuously
+                </span>
+              )}
             </div>
 
             {allArticles.length === 0 && !isFetching && (
@@ -293,7 +315,10 @@ export default function Home() {
               {isFetching ? (
                 <span className="font-mono text-xs text-muted-foreground animate-soft-pulse">Loading more…</span>
               ) : allArticles.length >= knownTotal && allArticles.length > 0 ? (
-                <span className="font-mono text-[11px] text-muted-foreground/50 italic">— end of today's reading —</span>
+                <div className="text-center space-y-2">
+                  <span className="block font-mono text-[11px] text-muted-foreground/60 italic">— that is today's reading. —</span>
+                  <span className="block font-mono text-[10px] text-muted-foreground/40 uppercase tracking-wider">New briefs arrive every few hours · return tomorrow</span>
+                </div>
               ) : null}
             </div>
           </section>

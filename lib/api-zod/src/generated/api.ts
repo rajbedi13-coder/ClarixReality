@@ -283,7 +283,11 @@ export const GetPlatformStatsResponse = zod.object({
   "briefsPublished": zod.number(),
   "sourcesMonitored": zod.number(),
   "commentsReviewed": zod.number(),
-  "aiAccuracy": zod.string()
+  "aiAccuracy": zod.string(),
+  "sectionsLive": zod.number(),
+  "briefsLast24h": zod.number(),
+  "lastUpdated": zod.string().describe('Relative timestamp (e.g. \"12 min ago\")'),
+  "refreshCadenceHours": zod.number()
 })
 
 

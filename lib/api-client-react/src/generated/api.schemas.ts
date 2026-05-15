@@ -107,6 +107,11 @@ export interface PlatformStats {
   sourcesMonitored: number;
   commentsReviewed: number;
   aiAccuracy: string;
+  sectionsLive: number;
+  briefsLast24h: number;
+  /** Relative timestamp (e.g. "12 min ago") */
+  lastUpdated: string;
+  refreshCadenceHours: number;
 }
 
 export interface TickerItem {

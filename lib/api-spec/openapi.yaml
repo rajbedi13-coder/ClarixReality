@@ -655,7 +655,7 @@ components:
 
     PlatformStats:
       type: object
-      required: [briefsPublished, sourcesMonitored, commentsReviewed, aiAccuracy]
+      required: [briefsPublished, sourcesMonitored, commentsReviewed, aiAccuracy, sectionsLive, briefsLast24h, lastUpdated, refreshCadenceHours]
       properties:
         briefsPublished:
           type: integer
@@ -665,6 +665,15 @@ components:
           type: integer
         aiAccuracy:
           type: string
+        sectionsLive:
+          type: integer
+        briefsLast24h:
+          type: integer
+        lastUpdated:
+          type: string
+          description: Relative timestamp (e.g. "12 min ago")
+        refreshCadenceHours:
+          type: integer
 
     TickerItem:
       type: object
