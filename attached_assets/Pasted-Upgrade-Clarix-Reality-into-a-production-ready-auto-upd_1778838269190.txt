@@ -1,0 +1,256 @@
+Upgrade Clarix Reality into a production-ready, auto-updating premium intellectual intelligence platform.
+
+Important:
+Do not break the current working website. Keep the existing design and features that already work, but improve them into a more premium, scalable, production-ready version.
+
+Core vision:
+Clarix Reality should feel like a cinematic, editorial, premium digital intelligence platform — not a basic AI news dashboard, not a generic SaaS app, and not a cheap AI-generated news site.
+
+The platform should be inspired by:
+- Geobarta for atmosphere and intellectual feed style
+- Bloomberg and Reuters for credibility and source discipline
+- The Economist for editorial intelligence
+- Aeon Essays for philosophical and psychological depth
+- modern AI discovery feeds for personalisation
+
+Brand positioning:
+Clarix Reality is a “signal over noise” platform for geopolitics, markets, psychology, philosophy, civilisation, technology, and world intelligence.
+
+Main tagline:
+“Signal over noise for geopolitics, markets, psychology and civilisation.”
+
+Main objective:
+Build the platform so it can support real, auto-updating content from RSS/news APIs, AI summarisation, database storage, admin review, and dynamic publishing.
+
+Do not simply add more fake sample cards. Build the architecture properly so real content can later flow through this system:
+
+Sources/RSS/API
+→ AI summarisation
+→ database
+→ admin review
+→ published feed
+→ user interaction/personalisation
+
+Legal and credibility rules:
+- Do not copy full articles.
+- Only use title, source, URL, metadata, short AI summary, key facts, and “why it matters”.
+- Always show original source name and source link.
+- Every quote, historical claim, philosophical reference, and factual claim must include a source/reference field.
+- Avoid fake “live” labels unless content is truly live.
+- Avoid clickbait, gossip, meme content, rage bait, low-quality viral content, and unsupported claims.
+- Clearly show that summaries are AI-assisted and source-transparent.
+
+Backend/content pipeline:
+Create a scalable content ingestion system with the following structure:
+
+1. RSS/news API ingestion
+- Pull articles from trusted RSS feeds or news APIs.
+- Support multiple sources.
+- Allow sources to be added/removed later.
+- Check for new content on a schedule.
+
+2. Duplicate prevention
+Avoid duplicate articles using:
+- source URL
+- title similarity
+- publish date
+- source name
+
+3. AI summary structure
+For each article, generate/store:
+- headline
+- short summary
+- why it matters
+- key facts
+- category
+- tags
+- impact level
+- reading time
+- source name
+- original source link
+- publish date
+- image thumbnail if available
+- content type
+- review status
+
+4. Database-ready architecture
+Store content dynamically instead of hardcoding article cards.
+If a real database is not connected yet, create a clean mock database/data layer that can later be replaced with Supabase/PostgreSQL.
+
+5. Admin review system
+Create an admin dashboard with:
+- pending articles
+- approved articles
+- rejected articles
+- edit summary
+- edit category
+- edit tags
+- delete article
+- approve/publish button
+- manual approval mode
+- trusted-source auto-publish mode
+
+Default mode should be manual approval, not full auto-publish.
+
+6. Scheduled updates
+Add scheduled-job-ready structure for checking new articles every few hours.
+If real cron/scheduler is not available in the current environment, create the functions and explain where the scheduler should connect later.
+
+Content types:
+- News Brief
+- Geopolitical Signal
+- Market Signal
+- Psychological Insight
+- Philosophy Fragment
+- Historical Insight
+- Cultural Analysis
+- Technology Frontier
+- Deep Essay
+
+Categories:
+- The World Today
+- Global Pulse
+- Markets & Capital
+- Geopolitical Risk
+- Mind & Society
+- Philosophy & History
+- Technology Frontier
+- Civilisation & Culture
+- Deep Intelligence
+- Intelligence Library
+
+Design direction:
+Make the platform feel premium, cinematic, editorial, and intelligent.
+
+Avoid:
+- basic dashboard look
+- generic AI app look
+- cluttered card grids
+- cheap SaaS styling
+- random stock-image feeling
+- every card looking identical
+- fake engagement numbers
+- overuse of glowing buttons
+- template-looking sections
+
+Use:
+- luxury dark mode
+- elegant serif typography
+- strong whitespace
+- asymmetrical editorial rhythm
+- immersive hero sections
+- magazine-style article pages
+- smooth scrolling
+- mobile-first polish
+- subtle transitions
+- premium source/reference display
+- atmospheric Geobarta-style feed energy
+
+Feed design:
+The main feed should feel alive, endless, and intelligent, but not chaotic.
+
+Create visual rhythm using:
+- large hero briefings
+- smaller signal cards
+- philosophy quote fragments
+- historical insight cards
+- market pulse cards
+- psychology insight cards
+- deep essay cards
+- source-backed analysis cards
+
+Do not make every article card the same size or style.
+
+Homepage structure:
+- Hero section: Clarix Reality
+- Tagline: “Signal over noise for geopolitics, markets, psychology and civilisation.”
+- Today’s Global Brief
+- Top Signals
+- Reality Swipe
+- Markets & Capital
+- Geopolitical Risk
+- Mind & Society
+- Philosophy & History
+- Technology Frontier
+- Deep Intelligence
+- Intelligence Library
+- Analysis Threads
+
+Reality Swipe feature:
+Create a premium discovery section called Reality Swipe.
+
+Users can:
+- swipe right / click interested = show more like this
+- swipe left / click less interested = show less like this
+
+Swipe cards can include:
+- short news brief
+- philosophical quote
+- psychology insight
+- market signal
+- geopolitical signal
+- cultural observation
+- historical idea
+
+Personalisation:
+Add simple local interest scoring first:
+- finance
+- geopolitics
+- psychology
+- philosophy
+- technology
+- culture
+- history
+- society
+
+Use this score to improve recommended feed items.
+Store locally for now, but structure the code so it can later connect to real user accounts and a database.
+
+Community:
+Keep discussion/comment sections premium and serious.
+Use “Analysis Threads” instead of basic “comments”.
+
+Discussion labels:
+- Insightful
+- Evidence-backed
+- Counterpoint
+- Moderator reviewed
+- Source needed
+
+Add AI moderation-ready structure for:
+- spam
+- abuse
+- hate speech
+- personal attacks
+- misinformation risk
+- low-effort comments
+
+Premium credibility section:
+Add visible trust signals:
+- AI-assisted summaries
+- source-transparent
+- no full article copying
+- no clickbait
+- no rage bait
+- references shown clearly
+- admin-reviewed mode available
+- designed for calm intelligence, not doomscrolling
+
+Launch readiness:
+Before finishing, verify:
+- website runs without errors
+- mobile layout works
+- category filtering works
+- article detail pages work
+- Reality Swipe works
+- saved/bookmark system works
+- newsletter signup works
+- admin dashboard route exists
+- content data is dynamic, not hardcoded everywhere
+- build succeeds
+- no broken buttons
+- no placeholder text like “Lorem ipsum”
+- no fake claims of live data unless real ingestion is active
+
+Final instruction:
+Make Clarix Reality feel like a luxury intellectual observatory and premium editorial intelligence platform, not a basic AI news website.
