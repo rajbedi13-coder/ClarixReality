@@ -4,6 +4,19 @@ import { z } from "zod/v4";
 
 export const impactLevelEnum = pgEnum("impact_level", ["high", "medium", "low"]);
 
+export const contentTypeEnum = pgEnum("content_type", [
+  "news",
+  "essay",
+  "quote",
+  "historical",
+  "market_signal",
+  "psychology",
+  "geopolitical",
+  "philosophy",
+  "culture",
+  "technology",
+]);
+
 export const categoriesTable = pgTable("categories", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
@@ -30,6 +43,10 @@ export const articlesTable = pgTable("articles", {
   imageUrl: text("image_url"),
   externalId: text("external_id").unique(),
   publishedAt: timestamp("published_at").notNull().defaultNow(),
+  contentType: contentTypeEnum("content_type").notNull().default("news"),
+  author: text("author"),
+  historicalDate: text("historical_date"),
+  tags: text("tags").array().notNull().default([]),
 });
 
 export const insertArticleSchema = createInsertSchema(articlesTable).omit({ id: true });

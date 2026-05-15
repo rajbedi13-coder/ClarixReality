@@ -1,0 +1,136 @@
+Upgrade Clarix Reality into a large-scale premium intellectual media platform, not a small demo with limited articles.
+
+Current issue:
+The platform only shows a small fixed set of articles. I want the structure to support an unlimited, expanding feed of articles, historical references, philosophical ideas, psychology, geopolitics, finance, society, culture, and technology.
+
+Core direction:
+Build Clarix Reality as a premium AI-curated intelligence platform that feels like a mix of Bloomberg, Reuters, The Economist, Aeon Essays, Geobarta, and a modern AI discovery feed.
+
+Important:
+Do not just add more fake cards. Build the platform architecture so it can support many articles and categories dynamically.
+
+Main changes required:
+
+1. Expand the article/feed system
+Create a scalable article data structure that can support hundreds or thousands of entries.
+Each article/item should include:
+- title
+- category
+- summary
+- why it matters
+- key facts
+- source/reference
+- original source link
+- publish date
+- historical date if relevant
+- author/source name
+- image/video thumbnail
+- tags
+- impact level
+- reading time
+- content type: News, Essay, Quote, Historical Insight, Market Signal, Psychological Insight, Geopolitical Brief, Philosophy, Culture, Technology
+
+2. Add mixed intellectual content
+The feed should not only be modern news. It should include:
+- current world news
+- geopolitical analysis
+- financial/market intelligence
+- psychology insights
+- philosophy quotes and explanations
+- historical references
+- ideas from thinkers such as Kafka, Marx, Nietzsche, Freud, Jung, Orwell, Dostoevsky, etc.
+- cultural/societal analysis
+- technology and AI developments
+
+Important: For quotes, historical claims, and article summaries, always show a source/reference. Do not present unsupported claims as fact.
+
+3. Add Explore / Swipe section
+Create a new section called “Explore” or “Reality Swipe”.
+
+This section should work like a Tinder-style discovery system where users can swipe or click:
+- Right = interesting / show more like this
+- Left = not interested / show less like this
+
+The swipe cards should include:
+- short news brief
+- philosophical quote
+- psychological insight
+- geopolitical signal
+- market signal
+- cultural observation
+- historical idea
+
+After users swipe, the feed should adapt to their interests and show more relevant content.
+
+4. Improve personalization logic
+Create a simple interest scoring system:
+If user likes/swipes right on finance → show more finance.
+If user likes geopolitics → show more geopolitics.
+If user likes psychology/philosophy → show more reflective content.
+If user dislikes celebrity/gossip/low-value content → reduce it.
+
+Store preferences locally for now, and design it so it can later connect to a database.
+
+5. Add infinite scroll / better feed
+Replace the limited article list with a stronger scrolling feed.
+The feed should feel endless and premium.
+Add:
+- infinite scroll style loading
+- category filtering
+- trending signals
+- recommended for you
+- latest intelligence
+- deep archive
+- historical insights
+
+6. Add media support
+Each card should support:
+- image thumbnails
+- embedded small video preview area
+- source logo/name
+- visual category indicators
+
+Do not use random ugly stock imagery. Use elegant placeholders for now, with support for real media later.
+
+7. Add Archive / Deep Library
+Create a section called “Archive” or “Intelligence Library”.
+This should support older content from 10, 20, 40, 50+ years ago if available online, as long as there is proper source attribution.
+
+The archive should be searchable by:
+- topic
+- thinker
+- year
+- category
+- region
+- theme
+
+8. Premium design direction
+Make the website feel bigger, deeper, and more premium:
+- cinematic editorial layout
+- dark luxury theme
+- elegant serif typography
+- smooth scrolling
+- premium spacing
+- immersive article cards
+- less basic dashboard feeling
+- more Geobarta-style atmosphere
+- intellectual magazine feel
+- mobile-first design
+
+9. Add sections to homepage
+Homepage should include:
+- Today’s Global Brief
+- Top Signals
+- Explore Swipe
+- Markets & Capital
+- Geopolitical Risk
+- Mind & Society
+- Philosophy & History
+- Deep Intelligence
+- Archive
+- Community Discussion
+
+10. Keep it realistic
+For now, use structured sample data, but build the code as if real APIs, RSS feeds, databases, AI summarisation, and source ingestion will be added later.
+
+Make the platform feel large and scalable before publishing.

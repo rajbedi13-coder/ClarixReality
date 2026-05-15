@@ -279,6 +279,93 @@ paths:
                 items:
                   $ref: "#/components/schemas/TickerItem"
 
+  /articles/explore:
+    get:
+      operationId: listExploreCards
+      tags: [articles]
+      summary: Random pool for the swipe/explore feed
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+        - name: prefer
+          in: query
+          description: Comma-separated content types or category slugs to weight upward
+          schema:
+            type: string
+        - name: skip
+          in: query
+          description: Comma-separated article IDs already seen
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Mixed editorial cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Article"
+
+  /archive:
+    get:
+      operationId: listArchive
+      tags: [articles]
+      summary: Filterable historical/intellectual archive
+      parameters:
+        - name: contentType
+          in: query
+          schema:
+            type: string
+        - name: author
+          in: query
+          schema:
+            type: string
+        - name: decade
+          in: query
+          description: e.g. 1880, 1920, 1990
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 24
+      responses:
+        "200":
+          description: Archive results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArticleList"
+
+  /archive/authors:
+    get:
+      operationId: listArchiveAuthors
+      tags: [articles]
+      summary: Distinct authors present in the archive
+      responses:
+        "200":
+          description: Author list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
   /articles/refresh:
     post:
       operationId: refreshNews
@@ -393,7 +480,7 @@ components:
 
     Article:
       type: object
-      required: [id, category, headline, summary, source, publishedAt, readTime, sentiment, impactLevel, upvotes, commentCount, isFeatured]
+      required: [id, category, headline, summary, source, publishedAt, readTime, sentiment, impactLevel, upvotes, commentCount, isFeatured, contentType, tags]
       properties:
         id:
           type: integer
@@ -431,10 +518,20 @@ components:
           type: boolean
         isUpvoted:
           type: boolean
+        contentType:
+          type: string
+        author:
+          type: ["string", "null"]
+        historicalDate:
+          type: ["string", "null"]
+        tags:
+          type: array
+          items:
+            type: string
 
     ArticleDetail:
       type: object
-      required: [id, category, headline, summary, whyItMatters, facts, source, sourceUrl, publishedAt, readTime, sentiment, impactLevel, upvotes, commentCount, isFeatured]
+      required: [id, category, headline, summary, whyItMatters, facts, source, sourceUrl, publishedAt, readTime, sentiment, impactLevel, upvotes, commentCount, isFeatured, contentType, tags]
       properties:
         id:
           type: integer
@@ -478,6 +575,16 @@ components:
           type: boolean
         isUpvoted:
           type: boolean
+        contentType:
+          type: string
+        author:
+          type: ["string", "null"]
+        historicalDate:
+          type: ["string", "null"]
+        tags:
+          type: array
+          items:
+            type: string
 
     ArticleList:
       type: object
