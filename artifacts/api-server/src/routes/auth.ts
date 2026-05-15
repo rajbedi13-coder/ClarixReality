@@ -3,25 +3,72 @@ import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db";
 import { SignUpBody, SignInBody } from "@workspace/api-zod";
 import { eq } from "drizzle-orm";
-import { createHash, randomBytes } from "crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "crypto";
+import bcrypt from "bcrypt";
 
 const router = Router();
 
-function hashPassword(password: string): string {
-  const salt = "clarix_salt_2025";
-  return createHash("sha256").update(password + salt).digest("hex");
+const BCRYPT_ROUNDS = 12;
+const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const LEGACY_SHA256_SALT = "clarix_salt_2025";
+
+const MIN_TOKEN_SECRET_LENGTH = 32;
+
+function resolveTokenSecret(): string {
+  const secret = process.env.TOKEN_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("TOKEN_SECRET environment variable is required in production");
+    }
+    const ephemeral = randomBytes(32).toString("hex");
+    console.warn("[auth] TOKEN_SECRET is not set. Using a random ephemeral secret — tokens will not survive server restarts. Set TOKEN_SECRET before deploying.");
+    return ephemeral;
+  }
+  if (secret.length < MIN_TOKEN_SECRET_LENGTH) {
+    throw new Error(`TOKEN_SECRET must be at least ${MIN_TOKEN_SECRET_LENGTH} characters long`);
+  }
+  return secret;
 }
 
+const TOKEN_SECRET = resolveTokenSecret();
+
 function generateToken(userId: number): string {
-  return Buffer.from(JSON.stringify({ userId, ts: Date.now() })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ userId, exp: Date.now() + TOKEN_TTL_MS })).toString("base64url");
+  const sig = createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
+  return `${payload}.${sig}`;
 }
 
 function parseToken(token: string): { userId: number } | null {
   try {
-    return JSON.parse(Buffer.from(token, "base64url").toString());
+    const dotIndex = token.lastIndexOf(".");
+    if (dotIndex === -1) return null;
+
+    const payload = token.slice(0, dotIndex);
+    const sig = token.slice(dotIndex + 1);
+
+    const expectedSig = createHmac("sha256", TOKEN_SECRET).update(payload).digest("hex");
+    const sigBuf = Buffer.from(sig, "hex");
+    const expectedBuf = Buffer.from(expectedSig, "hex");
+    if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
+      return null;
+    }
+
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString());
+    if (typeof data.userId !== "number" || typeof data.exp !== "number") return null;
+    if (Date.now() > data.exp) return null;
+
+    return { userId: data.userId };
   } catch {
     return null;
   }
+}
+
+function isLegacySha256Hash(hash: string): boolean {
+  return /^[0-9a-f]{64}$/.test(hash);
+}
+
+function legacyHashPassword(password: string): string {
+  return createHash("sha256").update(password + LEGACY_SHA256_SALT).digest("hex");
 }
 
 function getInitials(name: string): string {
@@ -54,9 +101,10 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
   if (existing) { res.status(409).json({ error: "Email already registered" }); return; }
 
   const trialEnd = trialEndsAt();
+  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   const [user] = await db.insert(usersTable).values({
     email,
-    passwordHash: hashPassword(password),
+    passwordHash,
     name,
     initials: getInitials(name),
     role: role ?? null,
@@ -86,9 +134,20 @@ router.post("/auth/signin", async (req, res): Promise<void> => {
 
   const { email, password } = parsed.data;
   const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
-  if (!user || user.passwordHash !== hashPassword(password)) {
-    res.status(401).json({ error: "Invalid email or password" }); return;
+  if (!user) { res.status(401).json({ error: "Invalid email or password" }); return; }
+
+  let passwordValid = false;
+  if (isLegacySha256Hash(user.passwordHash)) {
+    passwordValid = user.passwordHash === legacyHashPassword(password);
+    if (passwordValid) {
+      const newHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+      await db.update(usersTable).set({ passwordHash: newHash }).where(eq(usersTable.id, user.id));
+    }
+  } else {
+    passwordValid = await bcrypt.compare(password, user.passwordHash);
   }
+
+  if (!passwordValid) { res.status(401).json({ error: "Invalid email or password" }); return; }
 
   const token = generateToken(user.id);
   res.json({

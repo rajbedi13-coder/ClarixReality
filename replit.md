@@ -11,6 +11,7 @@ AI-curated intelligence briefings platform for curious professionals who want si
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `TOKEN_SECRET` — Secret key for signing bearer tokens (minimum 32 chars, randomly generated)
 
 ## Stack
 
@@ -62,6 +63,7 @@ AI-curated intelligence briefings platform for curious professionals who want si
 ## Security
 
 - `ADMIN_TOKEN` **must** be set as a secret (via Replit Secrets / environment variables), never committed to `.replit` or source code. Set a strong, randomly-generated value before deploying. Without it in production the API server returns 503 on all admin routes.
+- `TOKEN_SECRET` **must** be set as a secret before deploying. This key signs all bearer tokens — if missing in production the server throws on startup. Use a cryptographically-random value of at least 32 characters.
 - Feed URLs submitted through the admin console are validated server-side: only `http`/`https` protocols are accepted, private/loopback/link-local IPs and known cloud-metadata hostnames are blocked, and the resolved IP of the hostname is also checked to prevent DNS rebinding attacks.
 
 ## Gotchas
