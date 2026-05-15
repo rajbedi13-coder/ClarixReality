@@ -10,6 +10,8 @@ import Saved from "@/pages/saved";
 import SignIn from "@/pages/signin";
 import SignUp from "@/pages/signup";
 import Pricing from "@/pages/pricing";
+import Explore from "@/pages/explore";
+import Archive from "@/pages/archive";
 import { Layout } from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ function Router() {
         <Route path="/signin" component={SignIn} />
         <Route path="/signup" component={SignUp} />
         <Route path="/pricing" component={Pricing} />
+        <Route path="/explore" component={Explore} />
+        <Route path="/archive" component={Archive} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

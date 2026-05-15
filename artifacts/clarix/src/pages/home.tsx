@@ -292,6 +292,49 @@ export default function Home() {
             </div>
           </section>
 
+          {/* ── Discovery: Explore + Library teasers ── */}
+          {!isFiltered && (
+            <section className="mt-20 mb-16 grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <Link
+                href="/explore"
+                className="group relative overflow-hidden border border-border bg-surface/40 hover:bg-surface hover:border-accent/50 transition-all p-8 md:p-10 min-h-[260px] flex flex-col justify-between"
+              >
+                <div className="absolute -top-10 -right-10 text-[180px] font-serif text-accent/5 leading-none select-none group-hover:text-accent/10 transition-colors">◈</div>
+                <div className="relative space-y-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent">◈ Reality Swipe</p>
+                  <h3 className="font-serif text-3xl md:text-4xl tracking-tight leading-[1.05]">
+                    A discovery feed,<br /><span className="italic text-foreground/75">tuned to you.</span>
+                  </h3>
+                  <p className="font-serif text-[15px] text-muted-foreground leading-relaxed max-w-md">
+                    Swipe through philosophy fragments, market signals, and geopolitical briefs. The deck adapts to what you keep.
+                  </p>
+                </div>
+                <span className="relative font-mono text-[11px] uppercase tracking-wider text-accent group-hover:translate-x-1 transition-transform inline-flex items-center gap-2">
+                  Open Explore <span aria-hidden>→</span>
+                </span>
+              </Link>
+
+              <Link
+                href="/archive"
+                className="group relative overflow-hidden border border-border bg-surface/40 hover:bg-surface hover:border-accent/50 transition-all p-8 md:p-10 min-h-[260px] flex flex-col justify-between"
+              >
+                <div className="absolute -top-10 -right-10 text-[180px] font-serif text-accent/5 leading-none select-none group-hover:text-accent/10 transition-colors">❖</div>
+                <div className="relative space-y-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent">❖ Intelligence Library</p>
+                  <h3 className="font-serif text-3xl md:text-4xl tracking-tight leading-[1.05]">
+                    The Archive.<br /><span className="italic text-foreground/75">Centuries of thought, indexed.</span>
+                  </h3>
+                  <p className="font-serif text-[15px] text-muted-foreground leading-relaxed max-w-md">
+                    Nietzsche to Kahneman, Bretton Woods to ARPANET. Browse by thinker, era, or theme — every entry sourced.
+                  </p>
+                </div>
+                <span className="relative font-mono text-[11px] uppercase tracking-wider text-accent group-hover:translate-x-1 transition-transform inline-flex items-center gap-2">
+                  Enter the Library <span aria-hidden>→</span>
+                </span>
+              </Link>
+            </section>
+          )}
+
           {/* ── Closing editorial fragment ── */}
           {!isFiltered && allArticles.length > 0 && (
             <PullQuote quote={QUOTES[(QUOTES.length - 1) % QUOTES.length]} />

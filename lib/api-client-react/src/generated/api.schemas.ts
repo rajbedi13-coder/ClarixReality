@@ -29,6 +29,12 @@ export interface Article {
   imageUrl?: string | null;
   isSaved?: boolean;
   isUpvoted?: boolean;
+  contentType: string;
+  /** @nullable */
+  author?: string | null;
+  /** @nullable */
+  historicalDate?: string | null;
+  tags: string[];
 }
 
 export interface ArticleDetail {
@@ -53,6 +59,12 @@ export interface ArticleDetail {
   imageUrl?: string | null;
   isSaved?: boolean;
   isUpvoted?: boolean;
+  contentType: string;
+  /** @nullable */
+  author?: string | null;
+  /** @nullable */
+  historicalDate?: string | null;
+  tags: string[];
 }
 
 export interface ArticleList {
@@ -163,6 +175,30 @@ export interface MessageResult {
 
 export type ListArticlesParams = {
 category?: string;
+search?: string;
+page?: number;
+limit?: number;
+};
+
+export type ListExploreCardsParams = {
+limit?: number;
+/**
+ * Comma-separated content types or category slugs to weight upward
+ */
+prefer?: string;
+/**
+ * Comma-separated article IDs already seen
+ */
+skip?: string;
+};
+
+export type ListArchiveParams = {
+contentType?: string;
+author?: string;
+/**
+ * e.g. 1880, 1920, 1990
+ */
+decade?: number;
 search?: string;
 page?: number;
 limit?: number;

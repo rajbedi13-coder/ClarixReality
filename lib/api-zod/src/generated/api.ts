@@ -48,7 +48,11 @@ export const ListArticlesResponse = zod.object({
   "icon": zod.string().optional(),
   "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
-  "isUpvoted": zod.boolean().optional()
+  "isUpvoted": zod.boolean().optional(),
+  "contentType": zod.string(),
+  "author": zod.string().nullish(),
+  "historicalDate": zod.string().nullish(),
+  "tags": zod.array(zod.string())
 })),
   "total": zod.number(),
   "page": zod.number(),
@@ -77,7 +81,11 @@ export const ListFeaturedArticlesResponseItem = zod.object({
   "icon": zod.string().optional(),
   "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
-  "isUpvoted": zod.boolean().optional()
+  "isUpvoted": zod.boolean().optional(),
+  "contentType": zod.string(),
+  "author": zod.string().nullish(),
+  "historicalDate": zod.string().nullish(),
+  "tags": zod.array(zod.string())
 })
 export const ListFeaturedArticlesResponse = zod.array(ListFeaturedArticlesResponseItem)
 
@@ -103,7 +111,11 @@ export const ListTrendingArticlesResponseItem = zod.object({
   "icon": zod.string().optional(),
   "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
-  "isUpvoted": zod.boolean().optional()
+  "isUpvoted": zod.boolean().optional(),
+  "contentType": zod.string(),
+  "author": zod.string().nullish(),
+  "historicalDate": zod.string().nullish(),
+  "tags": zod.array(zod.string())
 })
 export const ListTrendingArticlesResponse = zod.array(ListTrendingArticlesResponseItem)
 
@@ -135,7 +147,11 @@ export const GetArticleResponse = zod.object({
   "icon": zod.string().optional(),
   "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
-  "isUpvoted": zod.boolean().optional()
+  "isUpvoted": zod.boolean().optional(),
+  "contentType": zod.string(),
+  "author": zod.string().nullish(),
+  "historicalDate": zod.string().nullish(),
+  "tags": zod.array(zod.string())
 })
 
 
@@ -238,7 +254,11 @@ export const ListSavedArticlesResponseItem = zod.object({
   "icon": zod.string().optional(),
   "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
-  "isUpvoted": zod.boolean().optional()
+  "isUpvoted": zod.boolean().optional(),
+  "contentType": zod.string(),
+  "author": zod.string().nullish(),
+  "historicalDate": zod.string().nullish(),
+  "tags": zod.array(zod.string())
 })
 export const ListSavedArticlesResponse = zod.array(ListSavedArticlesResponseItem)
 
@@ -275,6 +295,97 @@ export const GetTickerResponseItem = zod.object({
   "headline": zod.string()
 })
 export const GetTickerResponse = zod.array(GetTickerResponseItem)
+
+
+/**
+ * @summary Random pool for the swipe/explore feed
+ */
+export const listExploreCardsQueryLimitDefault = 30;
+
+export const ListExploreCardsQueryParams = zod.object({
+  "limit": zod.coerce.number().default(listExploreCardsQueryLimitDefault),
+  "prefer": zod.coerce.string().optional().describe('Comma-separated content types or category slugs to weight upward'),
+  "skip": zod.coerce.string().optional().describe('Comma-separated article IDs already seen')
+})
+
+export const ListExploreCardsResponseItem = zod.object({
+  "id": zod.number(),
+  "category": zod.string(),
+  "categorySlug": zod.string().optional(),
+  "headline": zod.string(),
+  "summary": zod.string(),
+  "source": zod.string(),
+  "sourceUrl": zod.string().optional(),
+  "publishedAt": zod.string(),
+  "readTime": zod.string(),
+  "sentiment": zod.string(),
+  "impactLevel": zod.string(),
+  "upvotes": zod.number(),
+  "commentCount": zod.number(),
+  "isFeatured": zod.boolean(),
+  "icon": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
+  "isSaved": zod.boolean().optional(),
+  "isUpvoted": zod.boolean().optional(),
+  "contentType": zod.string(),
+  "author": zod.string().nullish(),
+  "historicalDate": zod.string().nullish(),
+  "tags": zod.array(zod.string())
+})
+export const ListExploreCardsResponse = zod.array(ListExploreCardsResponseItem)
+
+
+/**
+ * @summary Filterable historical/intellectual archive
+ */
+export const listArchiveQueryPageDefault = 1;
+export const listArchiveQueryLimitDefault = 24;
+
+export const ListArchiveQueryParams = zod.object({
+  "contentType": zod.coerce.string().optional(),
+  "author": zod.coerce.string().optional(),
+  "decade": zod.coerce.number().optional().describe('e.g. 1880, 1920, 1990'),
+  "search": zod.coerce.string().optional(),
+  "page": zod.coerce.number().default(listArchiveQueryPageDefault),
+  "limit": zod.coerce.number().default(listArchiveQueryLimitDefault)
+})
+
+export const ListArchiveResponse = zod.object({
+  "articles": zod.array(zod.object({
+  "id": zod.number(),
+  "category": zod.string(),
+  "categorySlug": zod.string().optional(),
+  "headline": zod.string(),
+  "summary": zod.string(),
+  "source": zod.string(),
+  "sourceUrl": zod.string().optional(),
+  "publishedAt": zod.string(),
+  "readTime": zod.string(),
+  "sentiment": zod.string(),
+  "impactLevel": zod.string(),
+  "upvotes": zod.number(),
+  "commentCount": zod.number(),
+  "isFeatured": zod.boolean(),
+  "icon": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
+  "isSaved": zod.boolean().optional(),
+  "isUpvoted": zod.boolean().optional(),
+  "contentType": zod.string(),
+  "author": zod.string().nullish(),
+  "historicalDate": zod.string().nullish(),
+  "tags": zod.array(zod.string())
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "limit": zod.number()
+})
+
+
+/**
+ * @summary Distinct authors present in the archive
+ */
+export const ListArchiveAuthorsResponseItem = zod.string()
+export const ListArchiveAuthorsResponse = zod.array(ListArchiveAuthorsResponseItem)
 
 
 /**

@@ -26,4 +26,10 @@ export interface Article {
   imageUrl?: string | null;
   isSaved?: boolean;
   isUpvoted?: boolean;
+  contentType: string;
+  /** @nullable */
+  author?: string | null;
+  /** @nullable */
+  historicalDate?: string | null;
+  tags: string[];
 }

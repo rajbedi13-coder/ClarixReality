@@ -28,7 +28,9 @@ import type {
   Comment,
   CommentInput,
   HealthStatus,
+  ListArchiveParams,
   ListArticlesParams,
+  ListExploreCardsParams,
   MessageResult,
   NewsletterInput,
   NewsletterResult,
@@ -1101,6 +1103,251 @@ export function useGetTicker<TData = Awaited<ReturnType<typeof getTicker>>, TErr
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetTickerQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListExploreCardsUrl = (params?: ListExploreCardsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/articles/explore?${stringifiedParams}` : `/api/articles/explore`
+}
+
+/**
+ * @summary Random pool for the swipe/explore feed
+ */
+export const listExploreCards = async (params?: ListExploreCardsParams, options?: RequestInit): Promise<Article[]> => {
+
+  return customFetch<Article[]>(getListExploreCardsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListExploreCardsQueryKey = (params?: ListExploreCardsParams,) => {
+    return [
+    `/api/articles/explore`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListExploreCardsQueryOptions = <TData = Awaited<ReturnType<typeof listExploreCards>>, TError = ErrorType<unknown>>(params?: ListExploreCardsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listExploreCards>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListExploreCardsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listExploreCards>>> = ({ signal }) => listExploreCards(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listExploreCards>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListExploreCardsQueryResult = NonNullable<Awaited<ReturnType<typeof listExploreCards>>>
+export type ListExploreCardsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Random pool for the swipe/explore feed
+ */
+
+export function useListExploreCards<TData = Awaited<ReturnType<typeof listExploreCards>>, TError = ErrorType<unknown>>(
+ params?: ListExploreCardsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listExploreCards>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListExploreCardsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListArchiveUrl = (params?: ListArchiveParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/archive?${stringifiedParams}` : `/api/archive`
+}
+
+/**
+ * @summary Filterable historical/intellectual archive
+ */
+export const listArchive = async (params?: ListArchiveParams, options?: RequestInit): Promise<ArticleList> => {
+
+  return customFetch<ArticleList>(getListArchiveUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListArchiveQueryKey = (params?: ListArchiveParams,) => {
+    return [
+    `/api/archive`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListArchiveQueryOptions = <TData = Awaited<ReturnType<typeof listArchive>>, TError = ErrorType<unknown>>(params?: ListArchiveParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listArchive>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListArchiveQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listArchive>>> = ({ signal }) => listArchive(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listArchive>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListArchiveQueryResult = NonNullable<Awaited<ReturnType<typeof listArchive>>>
+export type ListArchiveQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Filterable historical/intellectual archive
+ */
+
+export function useListArchive<TData = Awaited<ReturnType<typeof listArchive>>, TError = ErrorType<unknown>>(
+ params?: ListArchiveParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listArchive>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListArchiveQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListArchiveAuthorsUrl = () => {
+
+
+
+
+  return `/api/archive/authors`
+}
+
+/**
+ * @summary Distinct authors present in the archive
+ */
+export const listArchiveAuthors = async ( options?: RequestInit): Promise<string[]> => {
+
+  return customFetch<string[]>(getListArchiveAuthorsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListArchiveAuthorsQueryKey = () => {
+    return [
+    `/api/archive/authors`
+    ] as const;
+    }
+
+
+export const getListArchiveAuthorsQueryOptions = <TData = Awaited<ReturnType<typeof listArchiveAuthors>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listArchiveAuthors>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListArchiveAuthorsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listArchiveAuthors>>> = ({ signal }) => listArchiveAuthors({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listArchiveAuthors>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListArchiveAuthorsQueryResult = NonNullable<Awaited<ReturnType<typeof listArchiveAuthors>>>
+export type ListArchiveAuthorsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Distinct authors present in the archive
+ */
+
+export function useListArchiveAuthors<TData = Awaited<ReturnType<typeof listArchiveAuthors>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listArchiveAuthors>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListArchiveAuthorsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

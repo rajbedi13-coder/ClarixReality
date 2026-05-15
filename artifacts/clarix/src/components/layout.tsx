@@ -34,6 +34,8 @@ export function Layout({ children }: { children: ReactNode }) {
           {/* Nav links */}
           <nav className="hidden md:flex items-center gap-7 text-sm">
             <NavLink href="/" active={location === "/"}>Briefings</NavLink>
+            <NavLink href="/explore" active={location === "/explore"}>Explore</NavLink>
+            <NavLink href="/archive" active={location === "/archive"}>Library</NavLink>
             <NavLink href="/saved" active={location === "/saved"}>Saved</NavLink>
             <NavLink href="/pricing" active={location === "/pricing"}>Pricing</NavLink>
           </nav>
