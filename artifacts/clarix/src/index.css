@@ -161,6 +161,73 @@
   pointer-events: none;
 }
 
+/* ─── Swipe deck: blur-up image, decision overlays, fly animations ─── */
+.swipe-img {
+  transition: filter 600ms ease, transform 800ms ease;
+  filter: blur(18px) saturate(1.1);
+  transform: scale(1.06);
+}
+.swipe-img.is-loaded {
+  filter: blur(0) saturate(1.05);
+  transform: scale(1);
+}
+.swipe-img-wrap {
+  position: relative;
+  background: linear-gradient(135deg, hsl(var(--surface)) 0%, hsl(var(--background)) 100%);
+}
+.swipe-img-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, transparent 0%, transparent 55%, hsl(var(--surface) / 0.92) 100%),
+    linear-gradient(to top, transparent 70%, hsl(0 0% 0% / 0.18) 100%);
+  pointer-events: none;
+}
+
+@keyframes swipeFlyRight {
+  to { transform: translate3d(140vw, 30vh, 0) rotate(28deg); opacity: 0; }
+}
+@keyframes swipeFlyLeft {
+  to { transform: translate3d(-140vw, 30vh, 0) rotate(-28deg); opacity: 0; }
+}
+.fly-right { animation: swipeFlyRight 360ms cubic-bezier(.5,.05,.7,.2) forwards; }
+.fly-left  { animation: swipeFlyLeft  360ms cubic-bezier(.5,.05,.7,.2) forwards; }
+
+@keyframes deckRise {
+  from { transform: translate3d(0, 24px, 0) scale(.96); opacity: 0; }
+  to   { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+}
+.deck-rise { animation: deckRise 480ms cubic-bezier(.2,.8,.2,1); }
+
+/* Drag indicator bars at the card edges */
+.drag-edge {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 6px;
+  pointer-events: none;
+  transition: opacity 120ms;
+}
+.drag-edge--left  { left: 0;  background: linear-gradient(to right, hsl(0 70% 55%), transparent); }
+.drag-edge--right { right: 0; background: linear-gradient(to left,  hsl(var(--accent)), transparent); }
+
+/* Card flip */
+.flip-scene { perspective: 1600px; }
+.flip-card {
+  position: relative;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 600ms cubic-bezier(.2,.8,.2,1);
+}
+.flip-card.is-flipped { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-face--back { transform: rotateY(180deg); }
+
 /* ─── Drop cap for editorial paragraphs ─── */
 .dropcap::first-letter {
   font-family: var(--app-font-serif);

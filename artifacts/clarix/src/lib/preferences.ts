@@ -61,6 +61,16 @@ export function markSeen(id: number) {
   } catch { /* ignore */ }
 }
 
+export function unmarkSeen(id: number) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(SEEN_KEY);
+    const arr: number[] = raw ? JSON.parse(raw) : [];
+    const next = arr.filter(x => x !== id);
+    localStorage.setItem(SEEN_KEY, JSON.stringify(next));
+  } catch { /* ignore */ }
+}
+
 export function getSeen(): number[] {
   if (typeof window === "undefined") return [];
   try {
