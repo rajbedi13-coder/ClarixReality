@@ -6,7 +6,7 @@ import { useTheme } from "./theme-provider";
 export function Layout({ children }: { children: ReactNode }) {
   const { data: user } = useGetCurrentUser();
   const signOut = useSignOut();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { theme, setTheme } = useTheme();
 
   const handleSignOut = () => {
@@ -14,74 +14,119 @@ export function Layout({ children }: { children: ReactNode }) {
       onSuccess: () => {
         localStorage.removeItem("token");
         setLocation("/signin");
-      }
+      },
     });
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col font-sans">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="font-serif font-bold text-2xl tracking-wide">Clarix</span>
-              <span className="hidden md:inline-flex items-center justify-center px-2 py-0.5 text-xs font-mono border border-accent text-accent rounded-sm">
-                Intelligence
-              </span>
-            </Link>
-            <nav className="hidden md:flex gap-6">
-              <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">Briefings</Link>
-              <Link href="/saved" className="text-sm font-medium text-muted-foreground hover:text-foreground">Saved</Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
+    <div className="min-h-[100dvh] flex flex-col">
+      {/* Top nav */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-screen-xl mx-auto px-6 flex h-13 items-center justify-between gap-8">
+          {/* Wordmark */}
+          <Link href="/" className="flex items-center gap-3 shrink-0">
+            <span className="font-serif text-xl font-semibold tracking-tight">Clarix</span>
+            <span className="hidden sm:block font-mono text-[10px] uppercase tracking-[0.15em] text-accent border border-accent/40 px-2 py-0.5 rounded-sm">
+              Intelligence
+            </span>
+          </Link>
+
+          {/* Nav links */}
+          <nav className="hidden md:flex items-center gap-7 text-sm">
+            <NavLink href="/" active={location === "/"}>Briefings</NavLink>
+            <NavLink href="/saved" active={location === "/saved"}>Saved</NavLink>
+            <NavLink href="/pricing" active={location === "/pricing"}>Pricing</NavLink>
+          </nav>
+
+          {/* Right controls */}
+          <div className="flex items-center gap-4 ml-auto md:ml-0">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-md hover:bg-muted"
+              className="font-mono text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+              title="Toggle theme"
             >
-              <span className="font-mono text-xs">{theme === "dark" ? "◈ Light" : "◈ Dark"}</span>
+              {theme === "dark" ? "Light" : "Dark"}
             </button>
+
             {user ? (
-              <div className="flex items-center gap-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground font-medium text-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent font-mono text-[11px] font-medium">
                   {user.initials}
                 </div>
-                <button onClick={handleSignOut} className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                  Sign Out
+                <button
+                  onClick={handleSignOut}
+                  className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
+                >
+                  Sign out
                 </button>
               </div>
             ) : (
-              <Link href="/signin" className="text-sm font-medium hover:text-foreground">
-                Sign In
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link href="/signin" className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
+                  Sign in
+                </Link>
+                <Link href="/signup" className="font-mono text-xs bg-foreground text-background px-3 py-1.5 hover:opacity-80 transition-opacity">
+                  Start free trial
+                </Link>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Ticker */}
         <Ticker />
       </header>
-      <main className="flex-1">
-        {children}
-      </main>
+
+      <main className="flex-1">{children}</main>
+
+      {/* Minimal footer */}
+      <footer className="border-t border-border mt-auto">
+        <div className="max-w-screen-xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <p className="font-serif text-base font-medium">Clarix Intelligence</p>
+            <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
+              Signal over noise · AI-assisted summaries · Source transparency
+            </p>
+          </div>
+          <div className="flex items-center gap-5 font-mono text-[11px] text-muted-foreground">
+            <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
+            <Link href="/signup" className="hover:text-foreground transition-colors">Get access</Link>
+          </div>
+        </div>
+      </footer>
     </div>
+  );
+}
+
+function NavLink({ href, children, active }: { href: string; children: ReactNode; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`font-mono text-xs uppercase tracking-wider transition-colors ${
+        active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
 
 function Ticker() {
   const { data: items } = useGetTicker();
-  
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="border-b bg-surface2 overflow-hidden h-8 flex items-center px-4 gap-4">
-      <span className="shrink-0 font-mono text-xs text-accent whitespace-nowrap">◈ Live</span>
-      <div className="flex-1 flex overflow-hidden relative">
-        <div className="animate-marquee whitespace-nowrap flex gap-8 items-center font-mono text-xs text-muted-foreground">
-          {items.map((item) => (
-            <span key={item.id}>◇ {item.headline}</span>
-          ))}
-          {/* Duplicate for infinite effect */}
-          {items.map((item) => (
-            <span key={`${item.id}-dup`}>◇ {item.headline}</span>
+    <div className="border-t border-border bg-surface overflow-hidden h-8 flex items-center">
+      <div className="shrink-0 px-4 border-r border-border h-full flex items-center">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-accent">Live</span>
+      </div>
+      <div className="flex-1 overflow-hidden relative">
+        <div className="animate-marquee whitespace-nowrap flex gap-12 items-center font-mono text-[11px] text-muted-foreground px-6">
+          {[...items, ...items].map((item, i) => (
+            <span key={i} className="flex items-center gap-2">
+              <span className="text-border">—</span>
+              {item.headline}
+            </span>
           ))}
         </div>
       </div>

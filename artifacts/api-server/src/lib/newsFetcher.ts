@@ -15,26 +15,26 @@ const parser = new Parser({
 });
 
 const RSS_FEEDS: { url: string; source: string; defaultCategory: string }[] = [
-  { url: "http://feeds.bbci.co.uk/news/world/rss.xml", source: "BBC News", defaultCategory: "world-news" },
-  { url: "http://feeds.bbci.co.uk/news/technology/rss.xml", source: "BBC News", defaultCategory: "technology-ai" },
-  { url: "http://feeds.bbci.co.uk/news/business/rss.xml", source: "BBC News", defaultCategory: "finance-markets" },
-  { url: "https://www.theguardian.com/world/rss", source: "The Guardian", defaultCategory: "world-news" },
-  { url: "https://www.theguardian.com/technology/rss", source: "The Guardian", defaultCategory: "technology-ai" },
-  { url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml", source: "Wall Street Journal", defaultCategory: "world-news" },
-  { url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml", source: "New York Times", defaultCategory: "world-news" },
-  { url: "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml", source: "New York Times", defaultCategory: "technology-ai" },
-  { url: "https://feeds.npr.org/1001/rss.xml", source: "NPR", defaultCategory: "world-news" },
+  { url: "http://feeds.bbci.co.uk/news/world/rss.xml", source: "BBC News", defaultCategory: "world" },
+  { url: "http://feeds.bbci.co.uk/news/technology/rss.xml", source: "BBC News", defaultCategory: "tech" },
+  { url: "http://feeds.bbci.co.uk/news/business/rss.xml", source: "BBC News", defaultCategory: "finance" },
+  { url: "https://www.theguardian.com/world/rss", source: "The Guardian", defaultCategory: "world" },
+  { url: "https://www.theguardian.com/technology/rss", source: "The Guardian", defaultCategory: "tech" },
+  { url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml", source: "Wall Street Journal", defaultCategory: "world" },
+  { url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml", source: "New York Times", defaultCategory: "world" },
+  { url: "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml", source: "New York Times", defaultCategory: "tech" },
+  { url: "https://feeds.npr.org/1001/rss.xml", source: "NPR", defaultCategory: "world" },
   { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera", defaultCategory: "geopolitics" },
-  { url: "https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml", source: "New York Times", defaultCategory: "finance-markets" },
+  { url: "https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml", source: "New York Times", defaultCategory: "finance" },
 ];
 
 const CATEGORY_KEYWORDS: { slug: string; keywords: string[] }[] = [
-  { slug: "technology-ai", keywords: ["ai", "artificial intelligence", "tech", "software", "cyber", "digital", "robot", "machine learning", "openai", "google", "apple", "microsoft", "meta", "nvidia", "chip", "quantum", "algorithm", "data", "hack", "privacy", "startup"] },
-  { slug: "finance-markets", keywords: ["economy", "market", "stock", "gdp", "inflation", "trade", "bank", "fed", "interest rate", "investment", "recession", "finance", "fiscal", "monetary", "crypto", "bitcoin", "oil", "energy", "commodity", "imf", "world bank"] },
+  { slug: "tech", keywords: ["ai", "artificial intelligence", "tech", "software", "cyber", "digital", "robot", "machine learning", "openai", "google", "apple", "microsoft", "meta", "nvidia", "chip", "quantum", "algorithm", "data", "hack", "privacy", "startup"] },
+  { slug: "finance", keywords: ["economy", "market", "stock", "gdp", "inflation", "trade", "bank", "fed", "interest rate", "investment", "recession", "finance", "fiscal", "monetary", "crypto", "bitcoin", "oil", "energy", "commodity", "imf", "world bank"] },
   { slug: "geopolitics", keywords: ["war", "conflict", "nato", "un ", "sanction", "diplomat", "treaty", "nuclear", "military", "tension", "geopolit", "coup", "election", "vote", "government", "minister", "president", "summit", "alliance", "china", "russia", "iran", "ukraine"] },
   { slug: "psychology", keywords: ["mental health", "psychology", "brain", "anxiety", "depression", "behavior", "cognitive", "wellbeing", "therapy", "stress", "emotion", "social media effect", "addiction", "happiness"] },
-  { slug: "society-culture", keywords: ["society", "culture", "social", "education", "health", "climate", "environment", "migration", "immigration", "gender", "race", "inequality", "poverty", "housing", "media", "arts", "sport", "celebrity"] },
-  { slug: "deep-dives", keywords: ["analysis", "investigation", "feature", "in-depth", "explainer", "special report", "long read"] },
+  { slug: "society", keywords: ["society", "culture", "social", "education", "health", "climate", "environment", "migration", "immigration", "gender", "race", "inequality", "poverty", "housing", "media", "arts", "sport", "celebrity"] },
+  { slug: "deepdive", keywords: ["analysis", "investigation", "feature", "in-depth", "explainer", "special report", "long read"] },
 ];
 
 function detectCategory(title: string, description: string, defaultCategory: string): string {

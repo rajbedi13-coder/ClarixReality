@@ -1,18 +1,30 @@
 import { useParams, Link } from "wouter";
-import { 
-  useGetArticle, 
-  useListComments, 
+import {
+  useGetArticle,
+  useListComments,
   useCreateComment,
   useToggleArticleUpvote,
   useToggleArticleSave,
   useToggleCommentUpvote,
   getGetArticleQueryKey,
   getListCommentsQueryKey,
-  useGetCurrentUser
+  useGetCurrentUser,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+
+/* ── Comment label derivation (no DB changes needed) ── */
+function getAnalysisLabel(comment: any): { label: string; cls: string } {
+  const text = (comment.content || "").toLowerCase();
+  if (comment.upvotes >= 15 || text.includes("study") || text.includes("evidence") || text.includes("data shows") || text.includes("research"))
+    return { label: "Evidence-backed", cls: "text-blue-400 border-blue-400/30 bg-blue-400/5" };
+  if (text.includes("however") || text.includes("disagree") || text.includes("contrary") || text.includes("but consider") || text.includes("counterpoint") || text.includes("on the other hand"))
+    return { label: "Counterpoint", cls: "text-orange-400 border-orange-400/30 bg-orange-400/5" };
+  if (comment.status === "approved" || comment.upvotes >= 20)
+    return { label: "Moderator Reviewed", cls: "text-accent border-accent/30 bg-accent/5" };
+  return { label: "Insightful", cls: "text-muted-foreground border-border/60 bg-muted/20" };
+}
 
 export default function ArticleDetail() {
   const params = useParams();
@@ -22,260 +34,294 @@ export default function ArticleDetail() {
   const { data: user } = useGetCurrentUser();
 
   const { data: article, isLoading } = useGetArticle(id, {
-    query: { enabled: !!id, queryKey: getGetArticleQueryKey(id) }
+    query: { enabled: !!id, queryKey: getGetArticleQueryKey(id) },
   });
-
   const { data: comments } = useListComments(id, {
-    query: { enabled: !!id, queryKey: getListCommentsQueryKey(id) }
+    query: { enabled: !!id, queryKey: getListCommentsQueryKey(id) },
   });
 
   const toggleUpvote = useToggleArticleUpvote();
   const toggleSave = useToggleArticleSave();
   const createComment = useCreateComment();
   const toggleCommentUpvote = useToggleCommentUpvote();
-
   const [commentContent, setCommentContent] = useState("");
 
-  const handleUpvote = () => {
-    toggleUpvote.mutate({ id }, {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getGetArticleQueryKey(id) })
-    });
-  };
+  const handleUpvote = () =>
+    toggleUpvote.mutate({ id }, { onSuccess: () => queryClient.invalidateQueries({ queryKey: getGetArticleQueryKey(id) }) });
 
-  const handleSave = () => {
+  const handleSave = () =>
     toggleSave.mutate({ id }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetArticleQueryKey(id) });
-        toast({ title: article?.isSaved ? "Removed from saved" : "Article saved", description: article?.isSaved ? "" : "Added to your saved briefings." });
-      }
+        toast({ title: article?.isSaved ? "Removed from saved" : "Saved to reading list" });
+      },
     });
-  };
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (commentContent.length < 20 || !user) return;
-    createComment.mutate({ id, data: { content: commentContent, userName: user.name, userRole: user.role || "Member" } }, {
-      onSuccess: () => {
-        setCommentContent("");
-        queryClient.invalidateQueries({ queryKey: getListCommentsQueryKey(id) });
-        toast({ title: "Comment posted" });
+    createComment.mutate(
+      { id, data: { content: commentContent, userName: user.name, userRole: user.role || "Member" } },
+      {
+        onSuccess: () => {
+          setCommentContent("");
+          queryClient.invalidateQueries({ queryKey: getListCommentsQueryKey(id) });
+          toast({ title: "Analysis posted" });
+        },
       }
-    });
-  };
-
-  const handleCommentUpvote = (commentId: number) => {
-    toggleCommentUpvote.mutate({ id: commentId }, {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListCommentsQueryKey(id) })
-    });
+    );
   };
 
   if (isLoading || !article) {
     return (
-      <div className="container py-8 max-w-3xl">
-        <div className="animate-pulse space-y-8">
-          <div className="h-8 bg-muted rounded w-1/4" />
-          <div className="h-64 bg-muted rounded" />
-          <div className="h-16 bg-muted rounded w-3/4" />
+      <div className="max-w-screen-xl mx-auto px-6 py-16">
+        <div className="max-w-2xl space-y-8 animate-pulse">
+          <div className="h-5 bg-muted rounded w-24" />
+          <div className="h-72 bg-muted rounded" />
+          <div className="h-10 bg-muted rounded w-3/4" />
           <div className="space-y-3">
             <div className="h-4 bg-muted rounded" />
             <div className="h-4 bg-muted rounded w-5/6" />
+            <div className="h-4 bg-muted rounded w-4/6" />
           </div>
         </div>
       </div>
     );
   }
 
-  const impactColor = article.impactLevel === "high" ? "bg-red-500" : article.impactLevel === "low" ? "bg-green-500" : "bg-yellow-500";
+  const impactColor =
+    article.impactLevel === "high" ? "bg-red-500" :
+    article.impactLevel === "low" ? "bg-emerald-500" : "bg-amber-400";
 
   return (
-    <div className="container py-8 max-w-3xl mx-auto space-y-10">
-      {/* Sticky topbar */}
-      <div className="flex items-center justify-between sticky top-14 bg-background/95 backdrop-blur py-4 z-40 border-b border-border/50">
-        <Link href="/" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ← Back
-        </Link>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleUpvote}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-mono text-xs border transition-colors ${article.isUpvoted ? "border-accent text-accent bg-accent/10" : "border-border text-muted-foreground hover:border-accent hover:text-accent"}`}
-          >
-            ▲ {article.upvotes} Insightful
-          </button>
-          <button
-            onClick={handleSave}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-mono text-xs border transition-colors ${article.isSaved ? "border-foreground text-foreground bg-foreground/10" : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"}`}
-          >
-            {article.isSaved ? "✓ Saved" : "Save"}
-          </button>
-        </div>
-      </div>
-
-      {/* Hero image */}
-      {article.imageUrl && (
-        <div className="rounded-xl overflow-hidden h-72 md:h-96 bg-muted">
-          <img
-            src={article.imageUrl}
-            alt={article.headline}
-            className="w-full h-full object-cover"
-            onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }}
-          />
-        </div>
-      )}
-
-      {/* Header */}
-      <header className="space-y-5">
-        <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-          <span className="text-accent bg-accent/10 px-2 py-1 rounded">◇ {article.category}</span>
-          <span className="text-muted-foreground">{article.publishedAt}</span>
-          <span className="text-muted-foreground">• {article.readTime}</span>
-          <span className="flex items-center gap-1.5 border border-border px-2 py-1 rounded text-muted-foreground">
-            <span className={`w-2 h-2 rounded-full ${impactColor}`} />
-            {article.impactLevel} Impact
-          </span>
-          <span className="border border-border px-2 py-1 rounded text-muted-foreground capitalize">{article.sentiment}</span>
-        </div>
-
-        <h1 className="font-serif text-3xl md:text-4xl font-medium leading-tight">{article.headline}</h1>
-
-        {/* Source attribution */}
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground font-mono text-xs">Source:</span>
-          <a
-            href={article.sourceUrl || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-accent hover:underline underline-offset-4 transition-colors"
-          >
-            {article.source} ↗
-          </a>
-          <span className="font-mono text-[10px] text-muted-foreground border border-border/50 px-1.5 py-0.5 rounded">Original article</span>
-        </div>
-      </header>
-
-      {/* AI Summary */}
-      <section className="space-y-3">
-        <h2 className="font-mono text-xs uppercase tracking-wider text-accent flex items-center gap-2">
-          <span>◈</span> AI Summary
-        </h2>
-        <p className="text-lg leading-relaxed text-foreground/90">{article.summary}</p>
-      </section>
-
-      {/* Why it matters */}
-      <section className="border-l-2 border-accent pl-6 py-2 bg-accent/5 rounded-r-lg">
-        <h2 className="font-mono text-xs uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
-          <span>◉</span> Why it matters
-        </h2>
-        <p className="leading-relaxed">{article.whyItMatters}</p>
-      </section>
-
-      {/* Key Facts */}
-      {article.facts && article.facts.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="font-mono text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-            <span>◇</span> Key Facts
-          </h2>
-          <ul className="space-y-3">
-            {article.facts.map((fact: string, i: number) => (
-              <li key={i} className="flex gap-4">
-                <span className="text-muted-foreground mt-1.5 shrink-0">—</span>
-                <span className="leading-relaxed">{fact}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Disclaimer */}
-      <div className="font-mono text-[10px] text-muted-foreground/60 border border-border/50 p-4 rounded bg-muted/30">
-        DISCLAIMER: This briefing is an AI-generated summary intended for informational purposes only. Content is sourced from <strong>{article.source}</strong> and summarised by Clarix. Verify facts with the original source before making decisions.
-      </div>
-
-      <hr className="border-border/50" />
-
-      {/* Discussion */}
-      <section className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="font-serif text-2xl font-medium">Discussion</h2>
-          <span className="font-mono text-[10px] uppercase tracking-wider border border-border px-2 py-1 rounded bg-muted/30 text-muted-foreground">
-            AI Moderated
-          </span>
-        </div>
-
-        {/* Comment input */}
-        <div className="flex gap-4">
-          <div className="w-10 h-10 shrink-0 rounded-full bg-accent/20 flex items-center justify-center text-accent font-medium text-sm">
-            {user ? user.initials : "?"}
+    <div className="max-w-screen-xl mx-auto">
+      {/* ── Sticky article toolbar ── */}
+      <div className="sticky top-[88px] z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+          <Link href="/" className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
+            ← Briefings
+          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleUpvote}
+              className={`flex items-center gap-2 px-3 py-1.5 font-mono text-[11px] border transition-colors ${
+                article.isUpvoted
+                  ? "border-accent text-accent bg-accent/8"
+                  : "border-border text-muted-foreground hover:border-accent/50 hover:text-accent"
+              }`}
+            >
+              ▲ {article.upvotes} Insightful
+            </button>
+            <button
+              onClick={handleSave}
+              className={`px-3 py-1.5 font-mono text-[11px] border transition-colors ${
+                article.isSaved
+                  ? "border-foreground/40 text-foreground bg-foreground/8"
+                  : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+              }`}
+            >
+              {article.isSaved ? "✓ Saved" : "Save"}
+            </button>
           </div>
-          <form onSubmit={handleCommentSubmit} className="flex-1 space-y-3">
-            <textarea
-              value={commentContent}
-              onChange={(e) => setCommentContent(e.target.value)}
-              placeholder={user ? "Add to the analysis (min. 20 characters)…" : "Sign in to join the discussion…"}
-              className="w-full min-h-[100px] bg-muted/30 border border-border rounded-md p-3 text-sm focus:outline-none focus:ring-1 focus:ring-accent resize-y disabled:opacity-60"
-              disabled={!user}
+        </div>
+      </div>
+
+      {/* ── Main content ── */}
+      <div className="max-w-3xl mx-auto px-6">
+        {/* Hero image */}
+        {article.imageUrl && (
+          <div className="mt-8 overflow-hidden bg-muted h-64 md:h-96">
+            <img
+              src={article.imageUrl}
+              alt={article.headline}
+              className="w-full h-full object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }}
             />
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-xs text-muted-foreground">
-                {user
-                  ? commentContent.length < 20
-                    ? `${20 - commentContent.length} more characters needed`
-                    : "Ready to post"
-                  : ""}
-              </span>
-              {user ? (
-                <button
-                  type="submit"
-                  disabled={commentContent.length < 20 || createComment.isPending}
-                  className="bg-accent text-accent-foreground px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 transition-opacity"
-                >
-                  {createComment.isPending ? "Posting…" : "Post Comment"}
-                </button>
-              ) : (
-                <Link href="/signin" className="bg-accent text-accent-foreground px-4 py-2 rounded-md text-sm font-medium">
-                  Sign in to comment
-                </Link>
-              )}
+          </div>
+        )}
+
+        {/* Header */}
+        <header className="py-10 space-y-6 border-b border-border">
+          <div className="flex flex-wrap items-center gap-3 font-mono text-[11px]">
+            <span className="text-accent font-medium">{article.category}</span>
+            <span className="text-border">·</span>
+            <span className="text-muted-foreground">{article.readTime}</span>
+            <span className="text-border">·</span>
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <span className={`w-1.5 h-1.5 rounded-full ${impactColor}`} />
+              <span className="capitalize">{article.impactLevel} impact</span>
+            </span>
+            <span className="text-border">·</span>
+            <span className="text-muted-foreground capitalize">{article.sentiment}</span>
+          </div>
+
+          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium leading-tight">
+            {article.headline}
+          </h1>
+
+          {/* Source block */}
+          <div className="flex items-center gap-3 py-3 border-y border-border/50">
+            <div className="flex-1">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Source</p>
+              <a
+                href={article.sourceUrl || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-sans text-sm font-medium text-foreground hover:text-accent transition-colors flex items-center gap-1.5"
+              >
+                {article.source}
+                <span className="text-muted-foreground text-xs">↗</span>
+              </a>
             </div>
-          </form>
+            <div className="text-right">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Published</p>
+              <p className="font-mono text-sm">{article.publishedAt}</p>
+            </div>
+          </div>
+        </header>
+
+        {/* AI Summary */}
+        <section className="py-8 border-b border-border space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">◈ AI Summary</span>
+            <span className="font-mono text-[9px] text-muted-foreground/60 border border-border/50 px-1.5 py-0.5">AI-assisted</span>
+          </div>
+          <p className="text-lg leading-relaxed text-foreground/90 font-sans">{article.summary}</p>
+        </section>
+
+        {/* Why it matters */}
+        <section className="py-8 border-b border-border">
+          <div className="pl-4 border-l-2 border-accent space-y-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">◉ Why it matters</p>
+            <p className="text-base leading-relaxed italic text-foreground/80">{article.whyItMatters}</p>
+          </div>
+        </section>
+
+        {/* Key facts */}
+        {article.facts && article.facts.length > 0 && (
+          <section className="py-8 border-b border-border space-y-5">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">◇ Key Facts</p>
+            <ul className="space-y-4">
+              {article.facts.map((fact: string, i: number) => (
+                <li key={i} className="flex gap-4 text-sm leading-relaxed">
+                  <span className="font-mono text-muted-foreground/50 mt-0.5 shrink-0 w-4">{String(i + 1).padStart(2, "0")}</span>
+                  <span>{fact}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Disclaimer */}
+        <div className="py-6 border-b border-border">
+          <p className="font-mono text-[10px] text-muted-foreground/50 leading-relaxed">
+            AI-ASSISTED SUMMARY — Clarix curates and summarises content from <strong className="text-muted-foreground/70">{article.source}</strong>. This briefing is for informational purposes only. Verify facts with the original source before acting on this intelligence.{" "}
+            {article.sourceUrl && article.sourceUrl !== "#" && (
+              <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">
+                Read original →
+              </a>
+            )}
+          </p>
         </div>
 
-        {/* Comment list */}
-        <div className="space-y-6">
-          {comments?.map((comment) => (
-            <div key={comment.id} className="flex gap-4">
-              <div className="w-10 h-10 shrink-0 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground font-medium text-sm">
-                {comment.userInitials}
-              </div>
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-medium text-sm">{comment.userName}</span>
-                    <span className="font-mono text-[10px] text-accent border border-accent/30 px-1.5 py-0.5 rounded-sm">{comment.userRole}</span>
-                  </div>
-                  <span className="font-mono text-xs text-muted-foreground">{comment.createdAt}</span>
-                </div>
-                <p className="text-sm leading-relaxed text-foreground/90">{comment.content}</p>
-                <div className="flex items-center gap-4 pt-1">
+        {/* ── Analysis Thread ── */}
+        <section className="py-10 space-y-8">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <h2 className="font-serif text-2xl font-medium">Analysis Thread</h2>
+              <p className="font-mono text-[11px] text-muted-foreground">
+                {comments?.length ?? 0} {(comments?.length ?? 0) === 1 ? "contribution" : "contributions"} · Expert perspectives
+              </p>
+            </div>
+            <span className="font-mono text-[9px] uppercase tracking-wider border border-border px-2 py-1 text-muted-foreground">
+              AI Curated
+            </span>
+          </div>
+
+          {/* Compose */}
+          <div className="flex gap-4 pb-8 border-b border-border">
+            <div className="w-8 h-8 shrink-0 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent font-mono text-[11px]">
+              {user ? user.initials : "?"}
+            </div>
+            <form onSubmit={handleCommentSubmit} className="flex-1 space-y-3">
+              <textarea
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
+                placeholder={user ? "Add your analysis, evidence, or perspective (min. 20 characters)…" : "Sign in to contribute to the analysis thread…"}
+                className="w-full min-h-[96px] bg-surface border border-border px-4 py-3 text-sm font-sans focus:outline-none focus:border-accent/50 resize-y transition-colors placeholder:text-muted-foreground/50 disabled:opacity-50"
+                disabled={!user}
+              />
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  {user
+                    ? commentContent.length < 20
+                      ? `${20 - commentContent.length} characters to go`
+                      : "✓ Ready to submit"
+                    : ""}
+                </span>
+                {user ? (
                   <button
-                    onClick={() => handleCommentUpvote(comment.id)}
-                    className={`font-mono text-xs flex items-center gap-1 transition-colors ${comment.isUpvoted ? "text-accent" : "text-muted-foreground hover:text-foreground"}`}
+                    type="submit"
+                    disabled={commentContent.length < 20 || createComment.isPending}
+                    className="font-mono text-[11px] uppercase tracking-wider bg-foreground text-background px-4 py-2 hover:opacity-80 transition-opacity disabled:opacity-30"
                   >
-                    ▲ {comment.upvotes}
+                    {createComment.isPending ? "Submitting…" : "Submit analysis"}
                   </button>
-                  <button className="font-mono text-xs text-muted-foreground hover:text-destructive transition-colors">
-                    Report
-                  </button>
-                </div>
+                ) : (
+                  <Link href="/signin" className="font-mono text-[11px] uppercase tracking-wider bg-foreground text-background px-4 py-2 hover:opacity-80 transition-opacity">
+                    Sign in to contribute
+                  </Link>
+                )}
               </div>
-            </div>
-          ))}
-          {comments?.length === 0 && (
-            <div className="text-center py-10 font-mono text-sm text-muted-foreground">
-              No analysis added yet. Be the first to comment.
-            </div>
-          )}
-        </div>
-      </section>
+            </form>
+          </div>
+
+          {/* Comment list */}
+          <div className="space-y-8">
+            {comments?.map((comment) => {
+              const { label, cls } = getAnalysisLabel(comment);
+              return (
+                <div key={comment.id} className="flex gap-4">
+                  <div className="w-8 h-8 shrink-0 bg-muted border border-border flex items-center justify-center font-mono text-[11px] text-muted-foreground">
+                    {comment.userInitials}
+                  </div>
+                  <div className="flex-1 space-y-2.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-sm">{comment.userName}</span>
+                      {comment.userRole && (
+                        <span className="font-mono text-[10px] text-muted-foreground/70">· {comment.userRole}</span>
+                      )}
+                      <span className={`font-mono text-[9px] uppercase tracking-wider border px-1.5 py-0.5 ${cls}`}>
+                        {label}
+                      </span>
+                      <span className="font-mono text-[10px] text-muted-foreground/50 ml-auto">{comment.createdAt}</span>
+                    </div>
+                    <p className="text-sm leading-relaxed text-foreground/85">{comment.content}</p>
+                    <div className="flex items-center gap-4 pt-0.5">
+                      <button
+                        onClick={() => toggleCommentUpvote.mutate({ id: comment.id }, { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListCommentsQueryKey(id) }) })}
+                        className={`font-mono text-[11px] flex items-center gap-1.5 transition-colors ${comment.isUpvoted ? "text-accent" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        ▲ {comment.upvotes}
+                      </button>
+                      <button className="font-mono text-[11px] text-muted-foreground/50 hover:text-destructive transition-colors">
+                        Report
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {(!comments || comments.length === 0) && (
+              <div className="py-12 text-center space-y-2">
+                <p className="font-mono text-[11px] text-muted-foreground/50 uppercase tracking-wider">No analysis yet</p>
+                <p className="text-sm text-muted-foreground">Be the first to contribute a perspective to this thread.</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
