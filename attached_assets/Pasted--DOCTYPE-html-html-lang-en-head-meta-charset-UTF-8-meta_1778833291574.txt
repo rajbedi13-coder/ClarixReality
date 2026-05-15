@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clarix — Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Source+Serif+4:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0c0d0f;
+    --surface: #131518;
+    --surface2: #1a1c21;
+    --border: #1e2028;
+    --text: #e8e4dc;
+    --muted: #5a5a62;
+    --sub: #8a8880;
+    --accent: #b4825a;
+    --accent-dim: rgba(180,130,90,0.3);
+    --green: #5ab87e;
+    --red: #c45a5a;
+    --gold: #c4a35a;
+    --blue: #7eb8f7;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: 'Source Serif 4', Georgia, serif; min-height: 100vh; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+  .fade { animation: fadeUp 0.4s ease both; }
+  .fade-1 { animation-delay: 60ms; }
+  .fade-2 { animation-delay: 120ms; }
+  .fade-3 { animation-delay: 180ms; }
+  .fade-4 { animation-delay: 240ms; }
+  .fade-5 { animation-delay: 300ms; }
+
+  /* TYPOGRAPHY */
+  .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
+  .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* LAYOUT */
+  .container { max-width: 1160px; margin: 0 auto; padding: 0 20px; }
+  .grid-main { display: grid; grid-template-columns: 190px 1fr; gap: 28px; padding: 28px 0 80px; }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg);
+  }
+  .header-inner {
+    display: flex; align-items: center; height: 58px; gap: 20px;
+  }
+  .wordmark { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; letter-spacing: -0.03em; color: var(--text); }
+  .badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--accent-dim); padding: 1px 6px; border-radius: 3px; }
+  .nav { display: flex; gap: 4px; flex: 1; }
+  .nav-btn { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 5px; background: none; border: none; color: var(--muted); cursor: pointer; transition: color 0.15s, background 0.15s; }
+  .nav-btn.active { background: var(--surface2); color: var(--text); }
+  .header-right { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+  .theme-btn { width: 32px; height: 32px; border-radius: 5px; background: var(--surface); border: 1px solid var(--border); color: var(--sub); cursor: pointer; font-size: 13px; }
+  .signin-btn { padding: 7px 16px; border-radius: 5px; background: var(--accent); color: #fff; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.04em; }
+
+  /* TICKER */
+  .ticker { border-top: 1px solid var(--border); padding: 6px 0; display: flex; align-items: center; gap: 12px; overflow: hidden; }
+  .ticker-live { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; flex-shrink: 0; }
+  .ticker-text { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* SIDEBAR */
+  .sidebar { display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0 10px 10px; }
+  .cat-btn { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 5px; background: none; border: 1px solid transparent; cursor: pointer; width: 100%; text-align: left; transition: all 0.15s; }
+  .cat-btn.active { background: rgba(180,130,90,0.1); border-color: var(--accent-dim); }
+  .cat-btn span { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--sub); }
+  .cat-btn.active span { color: var(--accent); }
+  .stats-box { margin-top: 20px; padding: 14px; background: var(--surface); border-radius: 7px; border: 1px solid var(--border); }
+  .stats-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .stat-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border); }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-key { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+  .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text); font-weight: 500; }
+
+  /* SEARCH */
+  .search-wrap { position: relative; margin-bottom: 20px; }
+  .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 13px; pointer-events: none; }
+  .search-input { width: 100%; padding: 11px 14px 11px 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-family: 'Source Serif 4', serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .search-input:focus { border-color: var(--accent-dim); }
+
+  /* NEWSLETTER */
+  .newsletter { padding: 28px 32px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .nl-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .nl-sub { font-family: 'Source Serif 4', serif; font-size: 13px; color: var(--sub); line-height: 1.6; margin-bottom: 18px; }
+  .nl-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .nl-input { flex: 1; min-width: 180px; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; }
+  .nl-btn { padding: 10px 22px; border-radius: 5px; background: var(--accent); color: #fff; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .nl-success { padding: 10px 14px; background: rgba(90,184,126,0.1); border: 1px solid rgba(90,184,126,0.25); border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); }
+
+  /* TAGS */
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; border: 1px solid; display: inline-block; }
+  .tag-cat { color: #9a8fb0; background: rgba(154,143,176,0.1); border-color: rgba(154,143,176,0.2); }
+  .tag-sig { color: var(--gold); background: rgba(196,163,90,0.1); border-color: rgba(196,163,90,0.25); }
+  .tag-break { color: var(--blue); background: rgba(126,184,247,0.1); border-color: rgba(126,184,247,0.25); }
+  .tag-caut { color: #e07b54; background: rgba(224,123,84,0.1); border-color: rgba(224,123,84,0.25); }
+  .tag-pos { color: var(--green); background: rgba(90,184,126,0.1); border-color: rgba(90,184,126,0.25); }
+  .tag-crit { color: var(--red); background: rgba(196,90,90,0.1); border-color: rgba(196,90,90,0.25); }
+  .tag-info { color: #9a8fb0; background: rgba(154,143,176,0.1); border-color: rgba(154,143,176,0.2); }
+
+  .impact { display: inline-flex; align-items: center; gap: 4px; }
+  .impact-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .impact-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* CARDS */
+  .feed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 9px; padding: 20px 22px;
+    cursor: pointer; transition: border-color 0.2s, transform 0.15s;
+    display: flex; flex-direction: column; gap: 11px;
+  }
+  .card:hover { border-color: var(--accent-dim); transform: translateY(-2px); }
+
+  .card-featured {
+    grid-column: 1 / -1;
+    display: grid; grid-template-columns: 1fr auto; gap: 20px;
+    align-items: start; padding: 28px 32px;
+  }
+
+  .card-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .card-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-left: auto; }
+
+  .card-headline { font-family: 'Cormorant Garamond', serif; font-weight: 700; letter-spacing: -0.01em; color: var(--text); line-height: 1.3; }
+  .card-headline.lg { font-size: clamp(18px, 2.5vw, 26px); }
+  .card-headline.sm { font-size: 17px; }
+
+  .card-summary { font-family: 'Source Serif 4', serif; font-size: 13px; line-height: 1.65; color: var(--sub); }
+
+  .card-footer { display: flex; gap: 12px; align-items: center; padding-top: 8px; border-top: 1px solid var(--border); }
+  .card-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+  .card-stat { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+  .save-btn { margin-left: auto; background: none; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); padding: 0; }
+  .save-btn.saved { color: var(--accent); }
+
+  .feat-icon { font-size: 42px; opacity: 0.2; color: var(--accent); text-align: center; padding-top: 6px; }
+  .feat-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-align: center; }
+
+  /* DETAIL VIEW */
+  #detail-view {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--bg); overflow-y: auto;
+    animation: fadeUp 0.3s cubic-bezier(0.22,1,0.36,1) both;
+    display: none;
+  }
+  #detail-view.open { display: block; }
+
+  .detail-topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 13px 24px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .back-btn { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--border); padding: 6px 14px; border-radius: 4px; cursor: pointer; letter-spacing: 0.04em; }
+  .upvote-btn { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; }
+  .upvote-btn.voted { color: var(--accent); background: rgba(180,130,90,0.1); border-color: var(--accent-dim); }
+
+  .detail-body { max-width: 700px; margin: 0 auto; padding: 36px 24px 80px; }
+
+  .detail-headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(24px, 4vw, 36px); font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; color: var(--text); margin: 18px 0 22px; }
+
+  .source-bar { display: flex; align-items: center; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+  .source-icon { width: 22px; height: 22px; border-radius: 4px; background: var(--accent); opacity: 0.7; }
+  .source-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--sub); }
+  .source-link { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); text-decoration: none; }
+  .source-dot { color: var(--border); }
+
+  .section-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+
+  .summary-text { font-family: 'Source Serif 4', serif; font-size: 17px; line-height: 1.75; color: var(--text); margin-bottom: 28px; }
+
+  .why-box { padding: 22px; background: var(--surface); border-radius: 8px; border-left: 3px solid var(--accent); margin-bottom: 28px; }
+  .why-text { font-family: 'Source Serif 4', serif; font-size: 15px; line-height: 1.7; color: var(--sub); }
+
+  .facts-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+  .facts-list li { display: flex; gap: 12px; }
+  .fact-dash { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; margin-top: 1px; flex-shrink: 0; }
+  .fact-text { font-family: 'Source Serif 4', serif; font-size: 14px; color: var(--sub); line-height: 1.6; }
+
+  .disclaimer { padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); line-height: 1.6; margin-bottom: 40px; }
+
+  /* COMMENTS */
+  .comments-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .comments-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--text); }
+  .ai-badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); background: var(--surface); padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border); }
+
+  .comment-input-area { padding: 18px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 24px; }
+  .comment-input-row { display: flex; gap: 12px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); flex-shrink: 0; }
+  .comment-textarea { width: 100%; min-height: 76px; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Source Serif 4', serif; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
+  .comment-textarea:focus { border-color: var(--accent-dim); }
+  .comment-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  .char-count { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+  .post-btn { padding: 8px 18px; border-radius: 4px; background: var(--surface2); color: var(--muted); border: none; cursor: not-allowed; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .post-btn.ready { background: var(--accent); color: #fff; cursor: pointer; }
+  .submit-notice { margin-top: 10px; padding: 9px 12px; background: rgba(90,184,126,0.1); border: 1px solid rgba(90,184,126,0.25); border-radius: 5px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); display: none; }
+  .submit-notice.show { display: block; }
+
+  .comment-card { padding: 16px 18px; background: var(--surface); border-radius: 7px; border: 1px solid var(--border); margin-bottom: 12px; }
+  .comment-top { display: flex; gap: 11px; }
+  .comment-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 7px; flex-wrap: wrap; }
+  .comment-user { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); font-weight: 500; }
+  .comment-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-left: auto; }
+  .comment-body { font-family: 'Source Serif 4', serif; font-size: 13px; line-height: 1.65; color: var(--sub); margin-bottom: 10px; }
+  .comment-btns { display: flex; gap: 12px; }
+  .comment-btn { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 0; }
+  .report-btn { margin-left: auto; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 60px 20px; }
+  .empty-icon { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: var(--muted); margin-bottom: 12px; }
+  .empty-text { font-family: 'Source Serif 4', serif; font-size: 16px; color: var(--muted); }
+
+  /* COOKIE BANNER */
+  .cookie-banner {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 13px 18px; display: flex; gap: 14px; align-items: center;
+    z-index: 300; max-width: 520px; width: calc(100% - 32px);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  .cookie-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--sub); line-height: 1.5; flex: 1; }
+  .cookie-link { color: var(--accent); text-decoration: none; }
+  .cookie-btns { display: flex; gap: 8px; flex-shrink: 0; }
+  .cookie-decline { padding: 5px 11px; border-radius: 4px; background: none; border: 1px solid var(--border); color: var(--muted); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .cookie-accept { padding: 5px 13px; border-radius: 4px; background: var(--accent); border: none; color: #fff; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); background: var(--surface); padding: 28px 20px; }
+  .footer-inner { max-width: 1160px; margin: 0 auto; }
+  .footer-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
+  .footer-brand { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .footer-tagline { font-family: 'Source Serif 4', serif; font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 300px; }
+  .footer-links { display: flex; gap: 28px; }
+  .footer-col-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .footer-link { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--sub); text-decoration: none; margin-bottom: 6px; transition: color 0.15s; }
+  .footer-link:hover { color: var(--accent); }
+  .footer-copy { border-top: 1px solid var(--border); padding-top: 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); line-height: 1.7; }
+
+  /* LIGHT THEME */
+  body.light {
+    --bg: #f7f4ef; --surface: #fff; --surface2: #eeeae4;
+    --border: #ddd9d0; --text: #18181b; --muted: #9a9890;
+    --sub: #4a4a50; --accent: #8b5e3c; --accent-dim: rgba(139,94,60,0.3);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .grid-main { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .card-featured { grid-template-columns: 1fr; }
+    .feat-icon { display: none; }
+    .header-date { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <span class="wordmark">Clarix</span>
+      <span class="badge">Intelligence</span>
+      <nav class="nav">
+        <button class="nav-btn active" onclick="setView('home',this)">◈ Briefings</button>
+        <button class="nav-btn" onclick="setView('saved',this)">◇ Saved</button>
+      </nav>
+      <div class="header-right">
+        <span class="header-date" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding-right:10px;border-right:1px solid var(--border);" id="date-display"></span>
+        <button class="theme-btn" onclick="toggleTheme()">☀</button>
+        <button class="signin-btn">Sign In</button>
+      </div>
+    </div>
+    <div class="ticker">
+      <span class="ticker-live">◈ Live</span>
+      <span class="ticker-text">G7 Economic Coercion Framework · OpenAI Architecture Leak · Private Credit Hits $2.1tn · India–Pakistan Talks Resume · 4-Day Workweek Data Released · Australia Cyber Act 2025</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<div class="container">
+  <div class="grid-main">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-label">Categories</div>
+      <button class="cat-btn active" onclick="setCategory('all',this)"><span>◈</span><span>All Briefs</span></button>
+      <button class="cat-btn" onclick="setCategory('world',this)"><span>🌐</span><span>World News</span></button>
+      <button class="cat-btn" onclick="setCategory('geopolitics',this)"><span>⚖</span><span>Geopolitics</span></button>
+      <button class="cat-btn" onclick="setCategory('finance',this)"><span>◎</span><span>Finance & Markets</span></button>
+      <button class="cat-btn" onclick="setCategory('tech',this)"><span>◇</span><span>Technology & AI</span></button>
+      <button class="cat-btn" onclick="setCategory('psychology',this)"><span>◉</span><span>Psychology</span></button>
+      <button class="cat-btn" onclick="setCategory('society',this)"><span>◈</span><span>Society & Culture</span></button>
+      <button class="cat-btn" onclick="setCategory('deepdive',this)"><span>▽</span><span>Deep Dives</span></button>
+
+      <div class="stats-box">
+        <div class="stats-label">◈ Platform Today</div>
+        <div class="stat-row"><span class="stat-key">Briefs published</span><span class="stat-val">8</span></div>
+        <div class="stat-row"><span class="stat-key">Sources monitored</span><span class="stat-val">47</span></div>
+        <div class="stat-row"><span class="stat-key">Comments reviewed</span><span class="stat-val">124</span></div>
+        <div class="stat-row"><span class="stat-key">AI accuracy</span><span class="stat-val">98.3%</span></div>
+      </div>
+    </aside>
+
+    <!-- FEED -->
+    <main>
+      <div class="search-wrap">
+        <span class="search-icon">◎</span>
+        <input class="search-input" type="text" placeholder="Search articles, topics, sources…" oninput="doSearch(this.value)" id="search-input">
+      </div>
+
+      <!-- Newsletter -->
+      <div class="newsletter fade" id="newsletter-block">
+        <div class="section-label">◈ Weekly Intelligence Digest</div>
+        <div class="nl-title">The most important developments. Every Sunday.</div>
+        <div class="nl-sub">No spam. No clickbait. One email with 10 signal-ranked briefs, curated for people who prefer thinking over scrolling.</div>
+        <div class="nl-row" id="nl-form">
+          <input class="nl-input" type="email" id="nl-email" placeholder="your@email.com">
+          <button class="nl-btn" onclick="nlSubscribe()">Subscribe</button>
+        </div>
+        <div class="nl-success" id="nl-success" style="display:none;">✓ Subscribed. Your first digest arrives this Sunday.</div>
+      </div>
+
+      <!-- Feed heading (hidden by default) -->
+      <div id="feed-heading" style="display:none; margin-bottom:18px;">
+        <h1 class="font-display" style="font-size:26px;font-weight:700;color:var(--text);margin-bottom:4px;" id="feed-heading-text"></h1>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);" id="feed-heading-count"></p>
+      </div>
+
+      <div class="feed-grid" id="feed-grid"></div>
+
+      <div class="empty" id="empty-state" style="display:none;">
+        <div class="empty-icon">◇</div>
+        <div class="empty-text" id="empty-msg">No articles found.</div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Clarix Intelligence</div>
+        <div class="footer-tagline">Signal over noise. AI-curated briefings from trusted global sources. No ads. No algorithms. No outrage.</div>
+      </div>
+      <div class="footer-links">
+        <div>
+          <div class="footer-col-title">Platform</div>
+          <a class="footer-link" href="#">About</a>
+          <a class="footer-link" href="#">How it works</a>
+          <a class="footer-link" href="#">Sources</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <a class="footer-link" href="#">Privacy Policy</a>
+          <a class="footer-link" href="#">Terms of Use</a>
+          <a class="footer-link" href="#">GDPR / CCPA</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copy">
+      © 2025 Clarix. All article summaries are AI-generated for educational and informational purposes only. All original content rights remain with respective publishers. GDPR & CCPA compliant. Privacy-first analytics only.
+    </div>
+  </div>
+</footer>
+
+<!-- ═══ COOKIE BANNER ═══ -->
+<div class="cookie-banner" id="cookie-banner">
+  <span class="cookie-text">Essential cookies only. No trackers. No ad networks. <a class="cookie-link" href="#">Privacy Policy</a></span>
+  <div class="cookie-btns">
+    <button class="cookie-decline" onclick="dismissCookie()">Decline</button>
+    <button class="cookie-accept" onclick="dismissCookie()">Accept</button>
+  </div>
+</div>
+
+<!-- ═══ ARTICLE DETAIL ═══ -->
+<div id="detail-view">
+  <div class="detail-topbar">
+    <button class="back-btn" onclick="closeDetail()">← Back</button>
+    <div style="display:flex;gap:8px;">
+      <button class="upvote-btn" id="upvote-btn" onclick="toggleUpvote()">▲ <span id="upvote-count">0</span> Insightful</button>
+      <button class="upvote-btn" id="save-detail-btn" onclick="saveFromDetail()">◇ Save</button>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div id="detail-meta" class="card-meta" style="margin-bottom:0;"></div>
+    <h1 class="detail-headline" id="detail-headline"></h1>
+    <div class="source-bar">
+      <div class="source-icon"></div>
+      <span class="source-name" id="detail-source"></span>
+      <span class="source-dot">·</span>
+      <a class="source-link" href="#" id="detail-source-link">Read original ↗</a>
+      <span class="source-dot">·</span>
+      <span class="source-name" id="detail-time"></span>
+    </div>
+
+    <div class="section-title">◈ AI Summary</div>
+    <p class="summary-text" id="detail-summary"></p>
+
+    <div class="why-box">
+      <div class="section-title">◉ Why it matters</div>
+      <p class="why-text" id="detail-why"></p>
+    </div>
+
+    <div class="section-title">◇ Key Facts</div>
+    <ul class="facts-list" id="detail-facts"></ul>
+
+    <div class="disclaimer" id="detail-disclaimer"></div>
+
+    <!-- COMMENTS -->
+    <div class="comments-header">
+      <h2 class="comments-title">Discussion <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);font-weight:400;" id="comment-count-label"></span></h2>
+      <span class="ai-badge">◈ AI moderated</span>
+    </div>
+
+    <div class="comment-input-area">
+      <div class="comment-input-row">
+        <div class="avatar">YO</div>
+        <div style="flex:1;">
+          <textarea class="comment-textarea" id="comment-input" placeholder="Share a thoughtful perspective. Cite sources where possible. Personal attacks and low-effort responses are removed automatically." oninput="updateCommentBtn()"></textarea>
+          <div class="comment-actions">
+            <span class="char-count" id="char-count">Min. 20 characters</span>
+            <button class="post-btn" id="post-btn" onclick="postComment()">Post Comment</button>
+          </div>
+          <div class="submit-notice" id="submit-notice">◈ Comment submitted for AI moderation review. It will appear shortly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="comments-list"></div>
+  </div>
+</div>
+
+<!-- ═══ SCRIPT ═══ -->
+<script>
+// ── DATA ──────────────────────────────────────────────────
+const ARTICLES = [
+  {
+    id:1, cat:"geopolitics", featured:true,
+    headline:"G7 Nations Agree on Framework to Counter Economic Coercion by State Actors",
+    summary:"Finance ministers from the seven largest democracies reached consensus on a coordinated toolkit to identify and respond to state-backed economic pressure campaigns. The framework introduces joint sanctions triggers and a shared early-warning intelligence network.",
+    why:"This marks the first time G7 nations have formally unified their economic defence posture. If enacted, it redraws the rules of geopolitical leverage — particularly against China's documented use of trade dependencies as foreign policy instruments.",
+    facts:["Joint framework signed by all 7 nations","Covers supply chain weaponisation, currency manipulation, and market access coercion","Implementation timeline: 18 months","Separate fund of $2.4bn for affected partner nations"],
+    source:"Financial Times", time:"2h ago", read:"4 min", sentiment:"significant", impact:"high",
+    upvotes:47, comments:2, icon:"⚖"
+  },
+  {
+    id:2, cat:"tech", featured:true,
+    headline:"OpenAI's New Architecture Reduces Hallucination Rate by 73% in Controlled Benchmarks",
+    summary:"A leaked internal research memo — later confirmed by three employees — details a new hybrid retrieval-reasoning architecture that grounds model outputs in verified document corpora before generating. The system reportedly passes legal and medical accuracy thresholds previously considered unreachable.",
+    why:"If the benchmark holds in production, this collapses the primary objection to deploying LLMs in high-stakes professional environments. The legal, medical, and financial sectors represent hundreds of billions in addressable revenue.",
+    facts:["73% reduction in factual errors on medical QA benchmarks","Architecture uses real-time document grounding","Internal timeline suggests Q3 rollout","GPT-4 baseline comparison used for benchmarking"],
+    source:"The Information", time:"5h ago", read:"5 min", sentiment:"breakthrough", impact:"high",
+    upvotes:89, comments:2, icon:"◇"
+  },
+  {
+    id:3, cat:"finance", featured:false,
+    headline:"Private Credit Markets Hit $2.1 Trillion — Regulators Flag Shadow Banking Risks",
+    summary:"The private credit industry has grown 340% since 2015. The IMF's latest report warns of cascading liquidity risk if defaults cluster during a downturn, as this market operates largely outside Basel III requirements.",
+    why:"A stress event could trigger a 2008-style liquidity crunch with fewer regulatory tools available to contain it. The scale now rivals the subprime mortgage market at its peak.",
+    facts:["Market grew from $480bn (2015) to $2.1tn (2024)","Apollo, Blackstone, Ares control 38% of market","Average loan-to-value ratios at 10-year high","IMF recommends mandatory stress testing"],
+    source:"Bloomberg", time:"7h ago", read:"6 min", sentiment:"cautionary", impact:"high",
+    upvotes:34, comments:0, icon:"◎"
+  },
+  {
+    id:4, cat:"psychology", featured:false,
+    headline:"Loneliness Epidemic: Social Isolation Now Comparable to Smoking 15 Cigarettes Daily",
+    summary:"A 20-year longitudinal study across 148 population cohorts confirms chronic loneliness increases all-cause mortality risk by 26%. The study identifies specific neural pathways through which isolation accelerates biological ageing.",
+    why:"Loneliness is now a measurable public health crisis with mortality statistics rivalling obesity. The findings demand policy responses — not just personal behaviour change.",
+    facts:["148 cohorts, 308,849 participants","26% higher mortality risk","Strongest effect in ages 35–65","Neural mechanism: elevated cortisol disrupting HPA axis regulation"],
+    source:"PLOS Medicine", time:"1d ago", read:"7 min", sentiment:"critical", impact:"high",
+    upvotes:112, comments:0, icon:"◉"
+  },
+  {
+    id:5, cat:"world", featured:false,
+    headline:"Pakistan and India Hold First Direct Trade Talks in Six Years Amid Water Dispute",
+    summary:"Backchannel negotiations facilitated by the UAE resulted in a joint working group announcement covering border trade, Indus Waters Treaty renegotiation, and cross-border electricity supply.",
+    why:"Water scarcity in the Indus basin is existential for both nations by 2040. Practical cooperation could prevent a resource-driven conflict between two nuclear states.",
+    facts:["First formal bilateral trade meeting since 2018","UAE brokered the engagement","Indus Waters Treaty under review for first time since 1960","Joint working group meets quarterly beginning June"],
+    source:"Reuters", time:"10h ago", read:"4 min", sentiment:"cautiously positive", impact:"medium",
+    upvotes:61, comments:0, icon:"🌐"
+  },
+  {
+    id:6, cat:"society", featured:false,
+    headline:"European Cities Experiment with Four-Day Workweek: Productivity Data After 24 Months",
+    summary:"A joint study by Oxford and Cambridge economists tracking 61 companies across Germany, Netherlands, and Portugal finds productivity unchanged, sick days down 23%, and staff retention up 41%.",
+    why:"The retention and health data may be more economically significant than productivity metrics — turnover costs typically exceed 50% of annual salary.",
+    facts:["61 companies tracked over 24 months","Productivity: neutral to +3%","Sick days: −23%","Staff turnover: −41%","2 of 61 companies reverted to 5-day"],
+    source:"The Economist", time:"1d ago", read:"5 min", sentiment:"positive", impact:"medium",
+    upvotes:78, comments:0, icon:"◈"
+  },
+  {
+    id:7, cat:"deepdive", featured:false,
+    headline:"Deep Dive: The Architecture of Authoritarian Resilience — Why Regimes Last",
+    summary:"A new framework combining historical analysis of 193 regimes since 1945 with network theory identifies five structural properties that predict longevity with 84% accuracy.",
+    why:"Understanding regime durability directly informs foreign policy, sanctions design, and civil society support strategies. The framework challenges assumptions about economic pressure.",
+    facts:["193 regimes analysed from 1945–2023","5 key durability factors identified","84% predictive accuracy on holdout data","Elite defection rate most predictive single variable"],
+    source:"Journal of Democracy", time:"2d ago", read:"12 min", sentiment:"informative", impact:"medium",
+    upvotes:93, comments:0, icon:"▽"
+  },
+  {
+    id:8, cat:"tech", featured:false,
+    headline:"Australia's Cyber Security Act 2025: What Businesses Must Do Before October",
+    summary:"The new legislation mandates 72-hour breach notification, mandatory security standards for critical infrastructure operators, and introduces a 'cyber shield' program. Penalties reach $15m for non-compliance.",
+    why:"Australian businesses — particularly SMEs — are significantly underprepared. The legislation closes regulatory gaps exposed by the Optus and Medibank breaches.",
+    facts:["72-hour mandatory incident notification window","Critical infrastructure: mandatory ASD Essential Eight compliance","Penalties: up to $15m per breach","October 15, 2025 enforcement start date"],
+    source:"Australian Cyber Security Centre", time:"3d ago", read:"6 min", sentiment:"regulatory", impact:"high",
+    upvotes:55, comments:0, icon:"◇"
+  }
+];
+
+const COMMENTS_DB = {
+  1: [
+    {initials:"MC", user:"M. Chen", role:"Economist", text:"The enforcement mechanism is the critical question. Previous G7 coordinated statements on economic coercion have been largely declaratory. The 'joint sanctions triggers' need a clear voting threshold — unanimous agreement would make the framework toothless.", upvotes:23, time:"1h ago", quality:"insightful"},
+    {initials:"AR", user:"A. Reinholt", role:"Policy Analyst", text:"Worth noting the timing here. This coincides with the EU's Anti-Coercion Instrument entering force. The G7 framework may be designed to give the US multilateral cover for actions it wanted to take unilaterally anyway.", upvotes:17, time:"45m ago", quality:"insightful"}
+  ],
+  2: [
+    {initials:"LF", user:"Dr. L. Farrow", role:"AI Researcher", text:"The benchmark methodology matters enormously here. 'Medical QA' benchmarks have historically been gamed by training on benchmark-adjacent data. I'd want to see performance on genuinely held-out clinical notes before trusting the 73% figure.", upvotes:41, time:"4h ago", quality:"insightful"},
+    {initials:"PO", user:"P. Okonkwo", role:"Healthcare Tech", text:"Regulatory approval timelines will be the real bottleneck regardless of benchmark performance. FDA and TGA have no established pathway for LLM-assisted diagnosis. That's a 3–5 year problem minimum.", upvotes:29, time:"3h ago", quality:"insightful"}
+  ]
+};
+
+// SENTIMENT → CSS class
+const SENT_CLASS = {
+  "significant":"tag-sig","breakthrough":"tag-break","cautionary":"tag-caut",
+  "critical":"tag-crit","cautiously positive":"tag-pos","positive":"tag-pos",
+  "informative":"tag-info","regulatory":"tag-sig"
+};
+const IMPACT_COLOR = { high:"#c45a5a", medium:"#c4a35a", low:"#5ab87e" };
+
+// ── STATE ──────────────────────────────────────────────────
+let currentView = "home";
+let currentCategory = "all";
+let currentSearch = "";
+let savedIds = new Set();
+let currentArticle = null;
+let userVoted = false;
+let userUpvotes = 0;
+
+// ── INIT ──────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  // Date
+  document.getElementById("date-display").textContent =
+    new Date().toLocaleDateString("en-GB", {weekday:"short",day:"numeric",month:"short",year:"numeric"});
+  renderFeed();
+});
+
+// ── RENDER FEED ───────────────────────────────────────────
+function renderFeed() {
+  const grid = document.getElementById("feed-grid");
+  const empty = document.getElementById("empty-state");
+  const heading = document.getElementById("feed-heading");
+  const nl = document.getElementById("newsletter-block");
+
+  let articles = ARTICLES.filter(a => {
+    const catOk = currentCategory === "all" || a.cat === currentCategory;
+    const srchOk = !currentSearch || a.headline.toLowerCase().includes(currentSearch.toLowerCase()) || a.summary.toLowerCase().includes(currentSearch.toLowerCase());
+    const savedOk = currentView !== "saved" || savedIds.has(a.id);
+    return catOk && srchOk && savedOk;
+  });
+
+  // Newsletter visibility
+  nl.style.display = (currentView === "home" && currentCategory === "all" && !currentSearch) ? "block" : "none";
+
+  // Heading visibility
+  if (currentCategory !== "all" || currentSearch || currentView === "saved") {
+    heading.style.display = "block";
+    let txt = currentSearch ? `Results for "${currentSearch}"` :
+              currentView === "saved" ? "Saved Articles" :
+              document.querySelector(".cat-btn.active span:last-child")?.textContent || "Articles";
+    document.getElementById("feed-heading-text").textContent = txt;
+    document.getElementById("feed-heading-count").textContent = `${articles.length} brief${articles.length !== 1 ? "s" : ""} found`;
+  } else {
+    heading.style.display = "none";
+  }
+
+  if (articles.length === 0) {
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    document.getElementById("empty-msg").textContent =
+      currentView === "saved" ? "No saved articles yet. Click ◇ on any brief to save it." :
+      currentSearch ? `No results for "${currentSearch}". Try a different keyword.` :
+      "No articles in this category yet.";
+    return;
+  }
+  empty.style.display = "none";
+
+  const featured = (currentView === "home" && currentCategory === "all" && !currentSearch)
+    ? articles.filter(a => a.featured) : [];
+  const regular = articles.filter(a => !featured.includes(a));
+
+  grid.innerHTML = [...featured, ...regular].map((a, i) => cardHTML(a, i, featured.includes(a))).join("");
+}
+
+function cardHTML(a, i, feat) {
+  const sentClass = SENT_CLASS[a.sentiment] || "tag-info";
+  const savedClass = savedIds.has(a.id) ? "saved" : "";
+  const savedLabel = savedIds.has(a.id) ? "✦ Saved" : "◇ Save";
+  const delay = `style="animation-delay:${i*60}ms"`;
+
+  if (feat) return `
+    <div class="card card-featured fade" ${delay} onclick="openDetail(${a.id})">
+      <div>
+        <div class="card-meta" style="margin-bottom:14px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;">◈ Featured Brief</span>
+          <span style="color:var(--border);margin:0 4px;">·</span>
+          <span class="tag tag-cat">${catLabel(a.cat)}</span>
+          <span class="tag ${sentClass}">${a.sentiment}</span>
+          <span class="impact"><span class="impact-dot" style="background:${IMPACT_COLOR[a.impact]}"></span><span class="impact-label">${a.impact} impact</span></span>
+        </div>
+        <h2 class="card-headline lg" style="margin-bottom:12px;">${a.headline}</h2>
+        <p class="card-summary" style="margin-bottom:18px;">${a.summary.slice(0,180)}…</p>
+        <div class="card-footer">
+          <span class="card-source">${a.source}</span>
+          <span class="card-stat">${a.read} read</span>
+          <span class="card-stat">▲ ${a.upvotes}</span>
+          <span class="card-stat">◎ ${a.comments} comments</span>
+          <button class="save-btn ${savedClass}" onclick="event.stopPropagation();toggleSave(${a.id})" id="save-${a.id}">${savedLabel}</button>
+        </div>
+      </div>
+      <div><div class="feat-icon">${a.icon}</div><div class="feat-time">${a.time}</div></div>
+    </div>`;
+
+  return `
+    <div class="card fade" ${delay} onclick="openDetail(${a.id})">
+      <div class="card-meta">
+        <span class="tag tag-cat">${catLabel(a.cat)}</span>
+        <span class="tag ${sentClass}">${a.sentiment}</span>
+        <span class="card-time">${a.time}</span>
+      </div>
+      <h3 class="card-headline sm">${a.headline}</h3>
+      <p class="card-summary">${a.summary.slice(0,130)}…</p>
+      <div class="card-footer">
+        <span class="card-source">${a.source}</span>
+        <span class="card-stat">${a.read}</span>
+        <span class="impact"><span class="impact-dot" style="background:${IMPACT_COLOR[a.impact]}"></span><span class="impact-label">${a.impact}</span></span>
+        <button class="save-btn ${savedClass}" onclick="event.stopPropagation();toggleSave(${a.id})" id="save-${a.id}">${savedIds.has(a.id)?"✦":"◇"}</button>
+      </div>
+    </div>`;
+}
+
+function catLabel(id) {
+  const map = {all:"All",world:"World News",geopolitics:"Geopolitics",finance:"Finance & Markets",tech:"Technology & AI",psychology:"Psychology",society:"Society & Culture",deepdive:"Deep Dives"};
+  return map[id] || id;
+}
+
+// ── DETAIL VIEW ───────────────────────────────────────────
+function openDetail(id) {
+  currentArticle = ARTICLES.find(a => a.id === id);
+  if (!currentArticle) return;
+  const a = currentArticle;
+  userVoted = false;
+  userUpvotes = a.upvotes;
+
+  const sentClass = SENT_CLASS[a.sentiment] || "tag-info";
+  document.getElementById("detail-meta").innerHTML = `
+    <span class="tag tag-cat">${catLabel(a.cat)}</span>
+    <span class="tag ${sentClass}">${a.sentiment}</span>
+    <span class="impact"><span class="impact-dot" style="background:${IMPACT_COLOR[a.impact]}"></span><span class="impact-label">${a.impact} impact</span></span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;">${a.read} read · ${a.time}</span>`;
+
+  document.getElementById("detail-headline").textContent = a.headline;
+  document.getElementById("detail-source").textContent = a.source;
+  document.getElementById("detail-time").textContent = a.time;
+  document.getElementById("detail-summary").textContent = a.summary;
+  document.getElementById("detail-why").textContent = a.why;
+  document.getElementById("detail-disclaimer").textContent = `© ${a.source}. AI-summarised for educational and informational purposes only. All original content rights remain with the publisher. Read the full article at the source link above.`;
+
+  document.getElementById("detail-facts").innerHTML = a.facts.map(f =>
+    `<li><span class="fact-dash">—</span><span class="fact-text">${f}</span></li>`).join("");
+
+  updateUpvoteBtn();
+  updateSaveDetailBtn();
+
+  // Comments
+  const comments = COMMENTS_DB[id] || [];
+  document.getElementById("comment-count-label").textContent = `(${comments.length})`;
+  document.getElementById("comments-list").innerHTML = comments.map(c => `
+    <div class="comment-card">
+      <div class="comment-top">
+        <div class="avatar">${c.initials}</div>
+        <div style="flex:1;">
+          <div class="comment-meta">
+            <span class="comment-user">${c.user}</span>
+            <span class="tag tag-cat">${c.role}</span>
+            ${c.quality === "insightful" ? '<span class="tag tag-sig">✦ Insightful</span>' : ""}
+            <span class="comment-time">${c.time}</span>
+          </div>
+          <p class="comment-body">${c.text}</p>
+          <div class="comment-btns">
+            <button class="comment-btn">▲ ${c.upvotes}</button>
+            <button class="comment-btn">Reply</button>
+            <button class="comment-btn report-btn">⚑ Report</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join("");
+
+  // Reset comment input
+  document.getElementById("comment-input").value = "";
+  document.getElementById("char-count").textContent = "Min. 20 characters";
+  document.getElementById("post-btn").className = "post-btn";
+  document.getElementById("submit-notice").className = "submit-notice";
+
+  document.getElementById("detail-view").className = "open";
+  document.getElementById("detail-view").scrollTop = 0;
+  document.body.style.overflow = "hidden";
+}
+
+function closeDetail() {
+  document.getElementById("detail-view").className = "";
+  document.body.style.overflow = "";
+  currentArticle = null;
+}
+
+function toggleUpvote() {
+  userVoted = !userVoted;
+  userUpvotes = userVoted ? currentArticle.upvotes + 1 : currentArticle.upvotes;
+  updateUpvoteBtn();
+}
+
+function updateUpvoteBtn() {
+  const btn = document.getElementById("upvote-btn");
+  btn.className = userVoted ? "upvote-btn voted" : "upvote-btn";
+  btn.innerHTML = `▲ ${userUpvotes} Insightful`;
+}
+
+function saveFromDetail() {
+  if (!currentArticle) return;
+  toggleSave(currentArticle.id);
+  updateSaveDetailBtn();
+}
+
+function updateSaveDetailBtn() {
+  if (!currentArticle) return;
+  const btn = document.getElementById("save-detail-btn");
+  btn.textContent = savedIds.has(currentArticle.id) ? "✦ Saved" : "◇ Save";
+  btn.className = savedIds.has(currentArticle.id) ? "upvote-btn voted" : "upvote-btn";
+}
+
+// ── COMMENTS ──────────────────────────────────────────────
+function updateCommentBtn() {
+  const val = document.getElementById("comment-input").value;
+  const count = document.getElementById("char-count");
+  const btn = document.getElementById("post-btn");
+  if (val.length < 20) {
+    count.textContent = `Min. 20 chars (${20 - val.length} more)`;
+    count.style.color = "var(--muted)";
+    btn.className = "post-btn";
+  } else {
+    count.textContent = `${val.length} chars`;
+    count.style.color = "var(--accent)";
+    btn.className = "post-btn ready";
+  }
+}
+
+function postComment() {
+  const val = document.getElementById("comment-input").value;
+  if (val.trim().length < 20) return;
+  document.getElementById("comment-input").value = "";
+  document.getElementById("char-count").textContent = "Min. 20 characters";
+  document.getElementById("post-btn").className = "post-btn";
+  document.getElementById("submit-notice").className = "submit-notice show";
+}
+
+// ── NAV / FILTER ──────────────────────────────────────────
+function setView(view, btn) {
+  currentView = view;
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderFeed();
+}
+
+function setCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderFeed();
+}
+
+function doSearch(val) {
+  currentSearch = val;
+  renderFeed();
+}
+
+function toggleSave(id) {
+  if (savedIds.has(id)) savedIds.delete(id); else savedIds.add(id);
+  // Update buttons in grid
+  const btn = document.getElementById(`save-${id}`);
+  if (btn) {
+    btn.className = savedIds.has(id) ? "save-btn saved" : "save-btn";
+    btn.textContent = savedIds.has(id) ? "✦ Saved" : "◇ Save";
+  }
+  if (currentView === "saved") renderFeed();
+}
+
+// ── NEWSLETTER ────────────────────────────────────────────
+function nlSubscribe() {
+  const email = document.getElementById("nl-email").value;
+  if (!email.includes("@")) return;
+  document.getElementById("nl-form").style.display = "none";
+  document.getElementById("nl-success").style.display = "block";
+}
+
+// ── THEME ─────────────────────────────────────────────────
+function toggleTheme() {
+  document.body.classList.toggle("light");
+  document.querySelector(".theme-btn").textContent = document.body.classList.contains("light") ? "◑" : "☀";
+}
+
+// ── COOKIE ────────────────────────────────────────────────
+function dismissCookie() {
+  document.getElementById("cookie-banner").style.display = "none";
+}
+</script>
+</body>
+</html>
