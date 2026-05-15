@@ -9,7 +9,7 @@ export default function Saved() {
       <div className="max-w-screen-xl mx-auto px-6 py-12">
         <div className="mb-8 space-y-1">
           <h1 className="font-serif text-3xl font-medium">Reading List</h1>
-          <p className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">Saved intelligence</p>
+          <p className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">Your Archive · Saved intelligence</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {[1, 2, 3].map((i) => (
@@ -26,11 +26,11 @@ export default function Saved() {
         <div className="space-y-1">
           <h1 className="font-serif text-3xl font-medium">Reading List</h1>
           <p className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">
-            {articles?.length ?? 0} saved {(articles?.length ?? 0) === 1 ? "briefing" : "briefings"}
+            {articles?.length ?? 0} {(articles?.length ?? 0) === 1 ? "brief" : "briefs"} in your Archive
           </p>
         </div>
         <Link href="/" className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-          ← Back to feed
+          ← Back to The Brief
         </Link>
       </div>
 
@@ -39,10 +39,10 @@ export default function Saved() {
           <span className="font-mono text-3xl text-muted-foreground/30">◇</span>
           <h2 className="font-serif text-xl font-medium">Your reading list is empty</h2>
           <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-            Save any briefing from the feed to build your personal intelligence archive.
+            Save any brief from The Brief to build your personal intelligence Archive.
           </p>
           <Link href="/" className="mt-2 font-mono text-[11px] uppercase tracking-wider bg-foreground text-background px-5 py-2.5 hover:opacity-80 transition-opacity">
-            Explore briefings
+            Open The Brief
           </Link>
         </div>
       ) : (

@@ -33,10 +33,11 @@ export function Layout({ children }: { children: ReactNode }) {
 
           {/* Nav links */}
           <nav className="hidden md:flex items-center gap-7 text-sm">
-            <NavLink href="/" active={location === "/"}>Briefings</NavLink>
-            <NavLink href="/explore" active={location === "/explore"}>Explore</NavLink>
+            <NavLink href="/" active={location === "/"}>The Brief</NavLink>
+            <NavLink href="/explore" active={location === "/explore"}>Reality Swipe</NavLink>
             <NavLink href="/archive" active={location === "/archive"}>Library</NavLink>
-            <NavLink href="/saved" active={location === "/saved"}>Saved</NavLink>
+            <NavLink href="/saved" active={location === "/saved"}>Archive</NavLink>
+            <NavLink href="/standard" active={location === "/standard"}>The Standard</NavLink>
             <NavLink href="/pricing" active={location === "/pricing"}>Pricing</NavLink>
           </nav>
 
@@ -87,18 +88,24 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <main className="flex-1">{children}</main>
 
-      {/* Minimal footer */}
+      {/* Editorial footer */}
       <footer className="border-t border-border mt-auto">
-        <div className="max-w-screen-xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <p className="font-serif text-base font-medium">Clarix Intelligence</p>
-            <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-              Signal over noise · AI-assisted summaries · Source transparency
-            </p>
-          </div>
-          <div className="flex items-center gap-5 font-mono text-[11px] text-muted-foreground">
-            <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
-            <Link href="/signup" className="hover:text-foreground transition-colors">Join the beta</Link>
+        <div className="max-w-screen-xl mx-auto px-6 py-10 space-y-6">
+          <p className="font-serif italic text-base md:text-lg text-foreground/75 leading-relaxed max-w-2xl">
+            No clickbait. No rage bait. No meme feed. Source-backed intelligence for clearer thinking.
+          </p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-6 border-t border-border/60">
+            <div className="space-y-1">
+              <p className="font-serif text-base font-medium">Clarix Reality</p>
+              <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
+                Signal over noise · AI-assisted summaries · Source transparency
+              </p>
+            </div>
+            <div className="flex items-center gap-5 font-mono text-[11px] text-muted-foreground">
+              <Link href="/standard" className="hover:text-foreground transition-colors">The Standard</Link>
+              <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
+              <Link href="/signup" className="hover:text-foreground transition-colors">Join the beta</Link>
+            </div>
           </div>
         </div>
       </footer>

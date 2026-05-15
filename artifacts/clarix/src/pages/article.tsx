@@ -53,7 +53,7 @@ export default function ArticleDetail() {
     toggleSave.mutate({ id }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetArticleQueryKey(id) });
-        toast({ title: article?.isSaved ? "Removed from saved" : "Saved to reading list" });
+        toast({ title: article?.isSaved ? "Removed from Archive" : "Added to your Archive" });
       },
     });
 
@@ -99,7 +99,7 @@ export default function ArticleDetail() {
       <div className="sticky top-[88px] z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <Link href="/" className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
-            ← Briefings
+            ← The Brief
           </Link>
           <div className="flex items-center gap-2">
             <button
@@ -291,7 +291,7 @@ export default function ArticleDetail() {
                     disabled={commentContent.length < 20 || createComment.isPending}
                     className="font-mono text-[11px] uppercase tracking-wider bg-foreground text-background px-4 py-2 hover:opacity-80 transition-opacity disabled:opacity-30"
                   >
-                    {createComment.isPending ? "Submitting…" : "Submit analysis"}
+                    {createComment.isPending ? "Adding…" : "Add to Salon"}
                   </button>
                 ) : (
                   <Link href="/signin" className="font-mono text-[11px] uppercase tracking-wider bg-foreground text-background px-4 py-2 hover:opacity-80 transition-opacity">

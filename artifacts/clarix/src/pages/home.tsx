@@ -153,7 +153,7 @@ export default function Home() {
             <span className="text-border">·</span>
             <TrustSignal icon="◉" text="No meme feed" />
             <span className="text-border hidden md:block">·</span>
-            <TrustSignal icon="▽" text={`${stats?.briefsPublished ?? "—"} briefings indexed`} className="hidden md:flex" />
+            <TrustSignal icon="▽" text={`${stats?.briefsPublished ?? "—"} briefs indexed`} className="hidden md:flex" />
           </div>
         </div>
       )}
@@ -164,7 +164,7 @@ export default function Home() {
           onClick={() => { setNewCount(0); setPage(1); setAllArticles([]); queryClient.invalidateQueries(); }}
           className="w-full py-2.5 text-center font-mono text-xs text-accent border-b border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors animate-soft-pulse"
         >
-          ↑ {newCount} new {newCount === 1 ? "briefing" : "briefings"} arrived — refresh to read
+          ↑ {newCount} new {newCount === 1 ? "brief" : "briefs"} arrived — refresh to read
         </button>
       )}
 
@@ -178,7 +178,7 @@ export default function Home() {
                 type="text"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
-                placeholder="Search briefings…"
+                placeholder="Search The Brief…"
                 className="w-full bg-transparent border border-border px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent placeholder:text-muted-foreground/60 transition-colors"
               />
               <button type="submit" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors text-sm">⌕</button>
@@ -187,7 +187,7 @@ export default function Home() {
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-3">Sections</p>
               <nav className="space-y-0.5">
-                <CategoryLink href="/" label="All Briefings" icon="◈" active={!category} count={knownTotal || undefined} />
+                <CategoryLink href="/" label="All Briefs" icon="◈" active={!category} count={knownTotal || undefined} />
                 {categories?.map(cat => (
                   <CategoryLink key={cat.id} href={`/?category=${cat.slug}`} label={cat.name} icon={cat.icon} active={category === cat.slug} count={cat.articleCount} />
                 ))}
@@ -198,7 +198,7 @@ export default function Home() {
               <div className="space-y-4 pt-2 border-t border-border">
                 <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Platform</p>
                 <div className="space-y-3">
-                  <Stat value={stats.briefsPublished} label="Briefings" />
+                  <Stat value={stats.briefsPublished} label="Briefs" />
                   <Stat value={stats.sourcesMonitored} label="Sources tracked" />
                   <Stat value={stats.aiAccuracy} label="AI accuracy" />
                 </div>
@@ -231,9 +231,9 @@ export default function Home() {
           {!isFiltered && heroFeatured && (
             <section className="border-b border-border">
               <div className="px-6 lg:px-10 pt-10 pb-4 flex items-baseline justify-between">
-                <SectionLabel>Featured Intelligence</SectionLabel>
+                <SectionLabel>Top Signals · Featured</SectionLabel>
                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hidden md:block">
-                  Today's lead briefings
+                  Today's lead signals
                 </span>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border-t border-border">
@@ -252,18 +252,23 @@ export default function Home() {
             </section>
           )}
 
+          {/* ── The Daily Brief — numbered editorial ritual ── */}
+          {!isFiltered && allArticles.length > 0 && (
+            <DailyBrief articles={allArticles} today={today} />
+          )}
+
           {/* ── Editorial pull-quote between featured and latest ── */}
           {!isFiltered && <PullQuote quote={pullQuote} />}
 
           {/* ── Latest Briefings grid ── */}
           <section className="px-6 lg:px-10 py-10">
             <div className="flex items-baseline justify-between mb-6">
-              <SectionLabel>{searchQuery ? `Results for "${searchQuery}"` : currentCatName ?? "Latest Briefings"}</SectionLabel>
+              <SectionLabel>{searchQuery ? `Results for "${searchQuery}"` : currentCatName ?? "The Brief · Latest"}</SectionLabel>
               {knownTotal > 0 && <span className="font-mono text-[11px] text-muted-foreground">{knownTotal} articles</span>}
             </div>
 
             {allArticles.length === 0 && !isFetching && (
-              <div className="py-24 text-center font-mono text-sm text-muted-foreground">No briefings found.</div>
+              <div className="py-24 text-center font-mono text-sm text-muted-foreground">Nothing to brief on yet.</div>
             )}
 
             {/* Interspersed grid: editorial fragments inserted *between* articles
@@ -286,7 +291,7 @@ export default function Home() {
 
             <div ref={loaderRef} className="mt-12 flex justify-center h-8">
               {isFetching ? (
-                <span className="font-mono text-xs text-muted-foreground animate-soft-pulse">Loading more briefings…</span>
+                <span className="font-mono text-xs text-muted-foreground animate-soft-pulse">Loading more…</span>
               ) : allArticles.length >= knownTotal && allArticles.length > 0 ? (
                 <span className="font-mono text-[11px] text-muted-foreground/50 italic">— end of today's reading —</span>
               ) : null}
@@ -346,6 +351,78 @@ export default function Home() {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ─── The Daily Brief ── editorial ritual, one item per theme ─── */
+function DailyBrief({ articles, today }: { articles: any[]; today: string }) {
+  // Pick one article per distinct category, up to 7
+  const seen = new Set<string>();
+  const picks: any[] = [];
+  for (const a of articles) {
+    const key = (a.category || "").toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      picks.push(a);
+    }
+    if (picks.length >= 7) break;
+  }
+  // Fall back to first 6 if we couldn't diversify
+  const items = picks.length >= 5 ? picks : articles.slice(0, 6);
+  if (items.length === 0) return null;
+
+  const romans = ["I", "II", "III", "IV", "V", "VI", "VII"];
+
+  return (
+    <section className="border-y border-border bg-surface/30 px-6 lg:px-10 py-14 lg:py-16">
+      <div className="max-w-4xl mx-auto space-y-10">
+        <header className="space-y-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent">◈ Today's ritual</p>
+          <h2 className="font-serif text-4xl md:text-5xl font-medium leading-[1.05] tracking-tight">
+            The Daily Brief.
+          </h2>
+          <p className="font-serif text-base md:text-lg text-muted-foreground italic max-w-2xl leading-relaxed">
+            A short, slow read across geopolitics, markets, technology, mind, society and the long arc of culture.
+            <span className="not-italic font-mono text-[11px] text-muted-foreground/60 block mt-2 uppercase tracking-wider">{today}</span>
+          </p>
+        </header>
+
+        <ol className="divide-y divide-border/60 border-t border-border/60">
+          {items.map((article, i) => (
+            <li key={article.id}>
+              <Link
+                href={`/article/${article.id}`}
+                className="group grid grid-cols-[44px_1fr] md:grid-cols-[56px_1fr_auto] gap-5 md:gap-7 py-6 md:py-7 items-start hover:bg-background/40 transition-colors -mx-3 md:-mx-5 px-3 md:px-5"
+              >
+                <span className="font-serif text-2xl md:text-3xl italic text-accent/70 leading-none pt-1">
+                  {romans[i]}
+                </span>
+                <div className="space-y-2 min-w-0">
+                  <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                    <span className="text-accent">{article.category}</span>
+                    <span className="text-border">·</span>
+                    <span>{article.readTime}</span>
+                  </div>
+                  <h3 className="font-serif text-xl md:text-[22px] leading-snug font-medium group-hover:text-accent transition-colors">
+                    {article.headline}
+                  </h3>
+                  <p className="font-serif text-[14px] md:text-[15px] text-muted-foreground line-clamp-2 leading-relaxed">
+                    {article.summary}
+                  </p>
+                </div>
+                <span className="hidden md:flex items-center self-center font-mono text-[11px] uppercase tracking-wider text-muted-foreground/60 group-hover:text-accent group-hover:translate-x-1 transition-all">
+                  Read →
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+
+        <p className="font-serif italic text-sm text-muted-foreground/70 text-center pt-2">
+          — that is today's brief. Read slowly. Return tomorrow. —
+        </p>
+      </div>
+    </section>
   );
 }
 
