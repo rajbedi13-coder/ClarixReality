@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Clarix Intelligence Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: articles
+    description: Intelligence articles/briefings
+  - name: categories
+    description: Article categories
+  - name: comments
+    description: Article comments
+  - name: users
+    description: User management and auth
+  - name: newsletter
+    description: Newsletter subscriptions
+  - name: stats
+    description: Platform statistics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,338 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /articles:
+    get:
+      operationId: listArticles
+      tags: [articles]
+      summary: List articles with optional filters
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of articles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArticleList"
+
+  /articles/featured:
+    get:
+      operationId: listFeaturedArticles
+      tags: [articles]
+      summary: Get featured/top articles
+      responses:
+        "200":
+          description: Featured articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Article"
+
+  /articles/trending:
+    get:
+      operationId: listTrendingArticles
+      tags: [articles]
+      summary: Get trending articles by upvotes
+      responses:
+        "200":
+          description: Trending articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Article"
+
+  /articles/{id}:
+    get:
+      operationId: getArticle
+      tags: [articles]
+      summary: Get article detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Article detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArticleDetail"
+        "404":
+          description: Not found
+
+  /articles/{id}/upvote:
+    post:
+      operationId: toggleArticleUpvote
+      tags: [articles]
+      summary: Toggle upvote on an article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated upvote state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpvoteResult"
+
+  /articles/{id}/save:
+    post:
+      operationId: toggleArticleSave
+      tags: [articles]
+      summary: Toggle save/bookmark on an article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated save state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveResult"
+
+  /articles/{id}/comments:
+    get:
+      operationId: listComments
+      tags: [comments]
+      summary: List comments for an article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+    post:
+      operationId: createComment
+      tags: [comments]
+      summary: Post a comment on an article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentInput"
+      responses:
+        "201":
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+  /comments/{id}/upvote:
+    post:
+      operationId: toggleCommentUpvote
+      tags: [comments]
+      summary: Toggle upvote on a comment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated upvote state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpvoteResult"
+
+  /saved:
+    get:
+      operationId: listSavedArticles
+      tags: [articles]
+      summary: Get user's saved/bookmarked articles
+      responses:
+        "200":
+          description: Saved articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Article"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all categories with article counts
+      responses:
+        "200":
+          description: Categories list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /stats:
+    get:
+      operationId: getPlatformStats
+      tags: [stats]
+      summary: Get today's platform statistics
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
+  /ticker:
+    get:
+      operationId: getTicker
+      tags: [stats]
+      summary: Get live ticker headlines
+      responses:
+        "200":
+          description: Ticker items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TickerItem"
+
+  /newsletter/subscribe:
+    post:
+      operationId: subscribeNewsletter
+      tags: [newsletter]
+      summary: Subscribe to newsletter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterInput"
+      responses:
+        "200":
+          description: Subscribed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterResult"
+
+  /auth/signup:
+    post:
+      operationId: signUp
+      tags: [users]
+      summary: Create a new user account (starts 1-month free trial)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpInput"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResult"
+        "409":
+          description: Email already exists
+
+  /auth/signin:
+    post:
+      operationId: signIn
+      tags: [users]
+      summary: Sign in to existing account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInInput"
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResult"
+        "401":
+          description: Invalid credentials
+
+  /auth/signout:
+    post:
+      operationId: signOut
+      tags: [users]
+      summary: Sign out
+      responses:
+        "200":
+          description: Signed out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResult"
+
+  /user/me:
+    get:
+      operationId: getCurrentUser
+      tags: [users]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +378,268 @@ components:
       required:
         - status
 
+    Article:
+      type: object
+      required: [id, category, headline, summary, source, publishedAt, readTime, sentiment, impactLevel, upvotes, commentCount, isFeatured]
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+        categorySlug:
+          type: string
+        headline:
+          type: string
+        summary:
+          type: string
+        source:
+          type: string
+        publishedAt:
+          type: string
+        readTime:
+          type: string
+        sentiment:
+          type: string
+        impactLevel:
+          type: string
+        upvotes:
+          type: integer
+        commentCount:
+          type: integer
+        isFeatured:
+          type: boolean
+        icon:
+          type: string
+        isSaved:
+          type: boolean
+        isUpvoted:
+          type: boolean
+
+    ArticleDetail:
+      type: object
+      required: [id, category, headline, summary, whyItMatters, facts, source, sourceUrl, publishedAt, readTime, sentiment, impactLevel, upvotes, commentCount, isFeatured]
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+        categorySlug:
+          type: string
+        headline:
+          type: string
+        summary:
+          type: string
+        whyItMatters:
+          type: string
+        facts:
+          type: array
+          items:
+            type: string
+        source:
+          type: string
+        sourceUrl:
+          type: string
+        publishedAt:
+          type: string
+        readTime:
+          type: string
+        sentiment:
+          type: string
+        impactLevel:
+          type: string
+        upvotes:
+          type: integer
+        commentCount:
+          type: integer
+        isFeatured:
+          type: boolean
+        icon:
+          type: string
+        isSaved:
+          type: boolean
+        isUpvoted:
+          type: boolean
+
+    ArticleList:
+      type: object
+      required: [articles, total, page, limit]
+      properties:
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    Comment:
+      type: object
+      required: [id, articleId, userInitials, userName, userRole, content, upvotes, createdAt, status]
+      properties:
+        id:
+          type: integer
+        articleId:
+          type: integer
+        userInitials:
+          type: string
+        userName:
+          type: string
+        userRole:
+          type: string
+        content:
+          type: string
+        upvotes:
+          type: integer
+        createdAt:
+          type: string
+        status:
+          type: string
+        isUpvoted:
+          type: boolean
+
+    CommentInput:
+      type: object
+      required: [content, userName, userRole]
+      properties:
+        content:
+          type: string
+          minLength: 20
+        userName:
+          type: string
+        userRole:
+          type: string
+
+    Category:
+      type: object
+      required: [id, slug, name, icon, articleCount]
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+        articleCount:
+          type: integer
+
+    PlatformStats:
+      type: object
+      required: [briefsPublished, sourcesMonitored, commentsReviewed, aiAccuracy]
+      properties:
+        briefsPublished:
+          type: integer
+        sourcesMonitored:
+          type: integer
+        commentsReviewed:
+          type: integer
+        aiAccuracy:
+          type: string
+
+    TickerItem:
+      type: object
+      required: [id, headline]
+      properties:
+        id:
+          type: integer
+        headline:
+          type: string
+
+    UpvoteResult:
+      type: object
+      required: [upvotes, isUpvoted]
+      properties:
+        upvotes:
+          type: integer
+        isUpvoted:
+          type: boolean
+
+    SaveResult:
+      type: object
+      required: [isSaved]
+      properties:
+        isSaved:
+          type: boolean
+
+    NewsletterInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    NewsletterResult:
+      type: object
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+    SignUpInput:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+        role:
+          type: string
+
+    SignInInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    User:
+      type: object
+      required: [id, email, name, initials, subscriptionStatus, trialEndsAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        initials:
+          type: string
+        role:
+          type: ["string", "null"]
+        subscriptionStatus:
+          type: string
+        trialEndsAt:
+          type: ["string", "null"]
+        trialDaysLeft:
+          type: ["integer", "null"]
+
+    AuthResult:
+      type: object
+      required: [user, token]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+
+    MessageResult:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string

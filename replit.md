@@ -1,10 +1,11 @@
-# [Project name]
+# Clarix Intelligence Platform
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+AI-curated intelligence briefings platform for curious professionals who want signal over noise.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/clarix run dev` — run the frontend (port assigned by workflow)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
@@ -14,6 +15,8 @@ _Replace the heading above with the project's name, and this line with one sente
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Frontend: React + Vite, Tailwind CSS, shadcn/ui, wouter, TanStack Query
+- Fonts: Cormorant Garamond (display), Source Serif 4 (body), JetBrains Mono (labels/mono)
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
@@ -22,23 +25,46 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth for all contracts)
+- `lib/db/src/schema/` — Drizzle ORM schema (articles.ts, users.ts, interactions.ts)
+- `artifacts/api-server/src/routes/` — Express route handlers
+- `artifacts/clarix/src/` — React frontend (pages/, components/, hooks/)
+- `lib/api-client-react/src/generated/` — Generated TanStack Query hooks
+- `lib/api-zod/src/generated/` — Generated Zod validation schemas
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Session-based upvotes/saves (IP/cookie-based, no auth required for interactions)
+- JWT tokens stored in localStorage for auth; passed as `Authorization: Bearer <token>`
+- Password hashing via SHA-256 + static salt (upgrade to bcrypt before production)
+- Backend formats relative timestamps ("2h ago") to avoid timezone issues on client
+- `impactLevel` uses a Postgres enum (high/medium/low); `subscriptionStatus` uses enum (trial/active/expired)
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Intelligence Feed** — categorized article cards with AI sentiment tags, impact dots, and featured articles
+- **Article Detail** — AI summary, "Why it matters", key facts, comments with upvoting
+- **Categories** — World News, Geopolitics, Finance & Markets, Technology & AI, Psychology, Society & Culture, Deep Dives
+- **User Auth** — Email/password signup with automatic 1-month free trial, sign in/out
+- **Save & Upvote** — Session-based bookmarking and upvoting (no login required)
+- **Newsletter** — Email subscription with duplicate prevention
+- **Live Ticker** — Scrolling headlines from the DB
+- **Theme Toggle** — Dark (default) / Light mode with localStorage persistence
+- **Pricing Page** — Free trial vs paid subscription overview
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Premium dark-mode-first design matching the Clarix HTML prototype
+- Keep everything from the original design: ticker, sidebar, stats, categories
+- Subscription model: 1 month free trial on signup, then paid or access ends
+- Payment gateway to be added later (Stripe)
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Always run `pnpm run typecheck:libs` after changing DB schema before running API server typecheck
+- After OpenAPI spec changes, run codegen before building frontend or type errors will cascade
+- The `formatTimeAgo` function runs on the backend; frontend should display `article.publishedAt` as a string (not parse it as a Date)
+- API server must be restarted after code changes (it bundles with esbuild)
 
 ## Pointers
 
