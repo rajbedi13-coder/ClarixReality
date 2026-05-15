@@ -16,12 +16,18 @@ export const QUOTES: Quote[] = [
   { text: "Civilisation begins with order, grows with liberty, and dies with chaos.", author: "Will Durant" },
 ];
 
+function safeIndex(n: number): number {
+  if (!QUOTES.length) return 0;
+  const i = Math.abs(Math.floor(n)) % QUOTES.length;
+  return Number.isFinite(i) ? i : 0;
+}
+
 export function quoteOfTheHour(): Quote {
   const h = new Date().getHours() + new Date().getDate();
-  return QUOTES[h % QUOTES.length];
+  return QUOTES[safeIndex(h)];
 }
 
 export function randomQuote(seed?: number): Quote {
-  const i = seed !== undefined ? Math.abs(seed) % QUOTES.length : Math.floor(Math.random() * QUOTES.length);
+  const i = seed !== undefined ? safeIndex(seed) : Math.floor(Math.random() * QUOTES.length);
   return QUOTES[i];
 }

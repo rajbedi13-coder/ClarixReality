@@ -2,7 +2,8 @@ import type { Quote } from "@/lib/quotes";
 
 /* A standalone "intellectual fragment" card — slots into the article grid
    between briefings to break the rhythm and lend an editorial cadence. */
-export function QuoteFragment({ quote }: { quote: Quote }) {
+export function QuoteFragment({ quote }: { quote?: Quote }) {
+  if (!quote || !quote.text) return null;
   return (
     <div className="border border-border bg-surface flex flex-col justify-between p-6 md:p-7 min-h-[260px] relative overflow-hidden group">
       <div aria-hidden className="absolute top-3 left-4 font-serif text-7xl leading-none text-accent/15 select-none">"</div>
@@ -23,7 +24,8 @@ export function QuoteFragment({ quote }: { quote: Quote }) {
 }
 
 /* A wider, full-row editorial pull-quote used for hero/section transitions. */
-export function PullQuote({ quote }: { quote: Quote }) {
+export function PullQuote({ quote }: { quote?: Quote }) {
+  if (!quote || !quote.text) return null;
   return (
     <div className="border-y border-border bg-surface/50 px-6 py-12 md:py-16">
       <div className="max-w-3xl mx-auto text-center space-y-5">

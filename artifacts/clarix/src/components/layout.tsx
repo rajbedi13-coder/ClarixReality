@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "wouter";
-import { useGetCurrentUser, useSignOut, useGetTicker } from "@workspace/api-client-react";
+import { Link, useLocation, useSearch } from "wouter";
+import { useGetCurrentUser, useSignOut, useGetTicker, useListCategories } from "@workspace/api-client-react";
 import { useTheme } from "./theme-provider";
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -73,6 +73,9 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
 
+        {/* Category navigation bar (mobile + desktop) */}
+        <CategoryBar />
+
         {/* Ticker */}
         <Ticker />
       </header>
@@ -107,6 +110,56 @@ function NavLink({ href, children, active }: { href: string; children: ReactNode
       }`}
     >
       {children}
+    </Link>
+  );
+}
+
+function CategoryBar() {
+  const { data: categories } = useListCategories();
+  const [location] = useLocation();
+  const search = useSearch();
+  const params = new URLSearchParams(search);
+  const activeSlug = params.get("category");
+  const onHome = location === "/";
+
+  if (!categories || categories.length === 0) return null;
+
+  return (
+    <div className="border-t border-border bg-background/80">
+      <div className="max-w-screen-2xl mx-auto overflow-x-auto scrollbar-none">
+        <nav className="flex items-stretch gap-0 px-2 md:px-6 min-w-max">
+          <CategoryNavLink href="/" active={onHome && !activeSlug} icon="◈" label="All" />
+          {categories.map((cat) => (
+            <CategoryNavLink
+              key={cat.id}
+              href={`/?category=${cat.slug}`}
+              active={onHome && activeSlug === cat.slug}
+              icon={cat.icon}
+              label={cat.name}
+              count={cat.articleCount}
+            />
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+function CategoryNavLink({ href, active, icon, label, count }: { href: string; active: boolean; icon: string; label: string; count?: number }) {
+  return (
+    <Link
+      href={href}
+      className={`group flex items-center gap-2 px-3 md:px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] whitespace-nowrap border-b-2 transition-colors ${
+        active
+          ? "border-accent text-foreground bg-accent/5"
+          : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+      }`}
+    >
+      <span className={active ? "text-accent" : "text-muted-foreground/70 group-hover:text-accent/70"}>{icon}</span>
+      <span className="font-sans normal-case tracking-normal text-[13px]">{label}</span>
+      {count !== undefined && count > 0 && (
+        <span className="text-[9px] text-muted-foreground/50 font-mono">{count}</span>
+      )}
     </Link>
   );
 }
