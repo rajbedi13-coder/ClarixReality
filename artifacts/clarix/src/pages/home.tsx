@@ -117,11 +117,11 @@ export default function Home() {
 
             {/* CTAs */}
             <div className="flex items-center gap-5 pt-2 animate-fade-up-delayed">
-              <Link href="/signup" className="inline-flex items-center gap-2 bg-foreground text-background font-mono text-[11px] uppercase tracking-[0.2em] px-6 py-3.5 hover:opacity-85 transition-opacity">
-                Begin reading
+              <Link href="#briefings" className="inline-flex items-center gap-2 bg-foreground text-background font-mono text-[11px] uppercase tracking-[0.2em] px-6 py-3.5 hover:opacity-85 transition-opacity">
+                Begin reading →
               </Link>
-              <Link href="#briefings" className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors">
-                Today's briefings →
+              <Link href="/signup" className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors">
+                Join the beta
               </Link>
             </div>
 

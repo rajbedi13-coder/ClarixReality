@@ -67,8 +67,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 <Link href="/signin" className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
                   Sign in
                 </Link>
-                <Link href="/signup" className="font-mono text-xs bg-foreground text-background px-3 py-1.5 hover:opacity-80 transition-opacity">
-                  Start free trial
+                <Link
+                  href="/signup"
+                  className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-accent transition-colors border-b border-transparent hover:border-accent/40 pb-0.5"
+                >
+                  Join the beta
                 </Link>
               </div>
             )}
@@ -95,7 +98,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
           <div className="flex items-center gap-5 font-mono text-[11px] text-muted-foreground">
             <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
-            <Link href="/signup" className="hover:text-foreground transition-colors">Get access</Link>
+            <Link href="/signup" className="hover:text-foreground transition-colors">Join the beta</Link>
           </div>
         </div>
       </footer>
