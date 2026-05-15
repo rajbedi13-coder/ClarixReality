@@ -122,6 +122,23 @@ export default function ArticleDetail() {
             >
               {article.isSaved ? "✓ Saved" : "Save"}
             </button>
+            <button
+              onClick={async () => {
+                const url = window.location.href;
+                const shareData = { title: article.headline, text: article.summary, url };
+                try {
+                  if (navigator.share && navigator.canShare?.(shareData)) {
+                    await navigator.share(shareData);
+                  } else {
+                    await navigator.clipboard.writeText(url);
+                    toast({ title: "Link copied" });
+                  }
+                } catch { /* user dismissed share */ }
+              }}
+              className="px-3 py-1.5 font-mono text-[11px] border border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors"
+            >
+              Share
+            </button>
           </div>
         </div>
       </div>
@@ -238,6 +255,15 @@ export default function ArticleDetail() {
             </span>
           </div>
 
+          {/* Discourse standards notice */}
+          <div className="flex items-start gap-3 px-4 py-3 border border-border/60 bg-surface/40">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent shrink-0 mt-0.5">◈ AI Mod</span>
+            <p className="font-sans text-[12px] text-muted-foreground/90 leading-relaxed">
+              Discourse here is guided by clarity standards. No ad hominem, no clickbait,
+              no slogans. Argue with evidence; disagree with grace.
+            </p>
+          </div>
+
           {/* Compose */}
           <div className="flex gap-4 pb-8 border-b border-border">
             <div className="w-8 h-8 shrink-0 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent font-mono text-[11px]">
@@ -302,7 +328,7 @@ export default function ArticleDetail() {
                         onClick={() => toggleCommentUpvote.mutate({ id: comment.id }, { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListCommentsQueryKey(id) }) })}
                         className={`font-mono text-[11px] flex items-center gap-1.5 transition-colors ${comment.isUpvoted ? "text-accent" : "text-muted-foreground hover:text-foreground"}`}
                       >
-                        ▲ {comment.upvotes}
+                        ▲ {comment.upvotes} Insightful
                       </button>
                       <button className="font-mono text-[11px] text-muted-foreground/50 hover:text-destructive transition-colors">
                         Report

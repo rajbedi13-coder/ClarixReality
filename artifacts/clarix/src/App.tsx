@@ -14,6 +14,7 @@ import Explore from "@/pages/explore";
 import Archive from "@/pages/archive";
 import Admin from "@/pages/admin";
 import { Layout } from "@/components/layout";
+import { GdprBanner } from "@/components/gdpr-banner";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ function App() {
             <Router />
           </WouterRouter>
           <Toaster />
+          <GdprBanner />
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

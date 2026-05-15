@@ -457,9 +457,15 @@ function SecondaryFeatured({ article }: { article: any }) {
 /* ─── Standard article tile in the grid ─── */
 function ArticleCard({ article }: { article: any }) {
   const impactColor = article.impactLevel === "high" ? "bg-red-500" : article.impactLevel === "low" ? "bg-emerald-500" : "bg-amber-400";
+  const isQuote = article.contentType === "quote";
   return (
     <Link href={`/article/${article.id}`}>
-      <article className="group border border-border hover:border-accent/40 transition-all flex flex-col h-full bg-card">
+      <article className="group border border-border hover:border-accent/40 transition-all flex flex-col h-full bg-card relative">
+        {!isQuote && (
+          <span className="absolute top-2 right-2 z-10 font-mono text-[9px] uppercase tracking-wider bg-background/85 backdrop-blur border border-border/70 px-1.5 py-0.5 text-muted-foreground/80">
+            ◈ AI-summarized · verify at source
+          </span>
+        )}
         {article.imageUrl && (
           <div className="h-44 overflow-hidden bg-muted shrink-0 img-vignette">
             <img
