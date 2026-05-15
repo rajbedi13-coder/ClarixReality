@@ -1,0 +1,83 @@
+ACT AS: Senior Full-Stack Developer & Editorial UX Designer
+
+OBJECTIVE:
+Build a complete, production-ready Next.js 14 web application from scratch called "Clarix Reality". It replaces Instagram-style doomscrolling with a high-signal intellectual feed: finance/geopolitics briefs + philosophical/psychological quotes + salon-style discussion. The app must run immediately in Replit preview with mock data, be mobile-first, and follow strict editorial design rules.
+
+CORE PRODUCT VISION:
+- "Doomscroll sanctuary": infinite scroll, but every card delivers clarity, not noise
+- Content mix: 60-sec news briefs (Reuters/FT/Aeon style) + curated quotes (Kafka, Marx, Osho, Fromm, Chomsky, Nietzsche)
+- Comment section: threaded, "Insightful" upvotes (not likes), min 20-character validation, AI moderation notice, calm discourse
+- Zero engagement bait: no algorithms, no viral sorting, no memes, no clickbait
+
+TECH STACK:
+- Next.js 14 (App Router), TypeScript, Tailwind CSS
+- `next/font/google` for typography
+- `react-intersection-observer` for infinite scroll
+- `next-themes` for dark/light mode
+- localStorage for saves/comments (with clear Supabase integration comments)
+- Web Share API for native sharing
+- Framer Motion for subtle card transitions only
+
+DESIGN SYSTEM (STRICT):
+- Background: #0a0a0c | Surface: #111114 | Border: rgba(255,255,255,0.06)
+- Accent: #c1440e (crimson-bronze) used ONLY for primary CTAs & active states
+- Text: #e8e6e3 (primary) | #a09c97 (secondary) | #6b6864 (metadata)
+- Fonts: Cormorant Garamond (headings/quotes), Source Serif 4 (body/briefs), JetBrains Mono (tags/metadata)
+- Cards: 1px subtle border, 12px radius, hover lift (translateY(-2px)), editorial spacing (24px padding)
+- Mobile: bottom navigation, env(safe-area-inset-bottom) padding, min 44px tap targets, no horizontal overflow
+
+DATA & MOCK STRUCTURE:
+Create `lib/mockFeed.ts` with 20 items mixed as: 14 NewsBriefs, 6 PhilosophicalQuotes.
+Each item interface:
+{
+  id: string;
+  type: 'news' | 'quote';
+  title: string;
+  summary?: string; // for news
+  quote?: string; // for quotes
+  author?: string;
+  source: string;
+  category: 'finance' | 'geopolitics' | 'philosophy' | 'psychology' | 'world';
+  timestamp: string;
+  credibility?: 'high' | 'medium';
+  saved: boolean;
+  insights: number; // "insightful" upvotes
+  commentCount: number;
+}
+Populate with realistic, high-quality mock content matching the vibe.
+
+COMPONENT SPECS:
+1. `app/layout.tsx`: Root layout with font loading, theme provider, global styles, PWA meta tags
+2. `components/Feed.tsx`: Infinite scroll wrapper using IntersectionObserver. Loads 5 items at a time from mock data. Category filter chips at top. Live search bar that collapses on scroll.
+3. `components/NewsCard.tsx`: Headline, 60-sec summary, source + credibility badge, AI disclaimer badge ("AI-summarized • Verify at source"), "Read Original" link, action bar (save, share, comment toggle)
+4. `components/QuoteCard.tsx`: Large serif quote, author + school tag (e.g., "Marx • Historical Materialism"), context line, action bar
+5. `components/CommentThread.tsx`: Appears when toggled. Input with min 20-char validation. Nested replies. "Insightful" upvote button (changes to filled bronze). AI moderation notice: "Discourse guided by clarity standards. No ad hominem."
+6. `components/MobileNav.tsx`: Fixed bottom nav with 4 items: Feed, Search, Saved, Menu. Hidden on md+
+7. `components/DesktopSidebar.tsx`: Left nav with logo, categories, settings. Hidden on mobile
+8. `components/GDPRBanner.tsx`: Minimal cookie/privacy notice with "Accept Essential" button
+
+KEY INTERACTIONS:
+- Infinite scroll: auto-load next 5 items when last card is 80% visible
+- Pull-to-refresh: simple visual indicator on mobile feed top
+- Save: toggles heart/◇ icon, persists to localStorage
+- Share: uses navigator.share() if available, else copies link
+- Filter: category chips update feed instantly with smooth fade
+- Search: filters by title/source/category in real-time
+
+CONSTRAINTS & GUARDRAILS:
+- NO external API calls for now. Use mock data + localStorage only
+- NO engagement algorithms. Chronological order only
+- All code must be strict TypeScript. No `any`. Proper interfaces
+- Optimize for mobile LCP <1.8s. Use `next/image` with priority on hero cards only
+- Add clear `// TODO: Connect Supabase` comments where DB integration belongs
+- Include `README.md` with exact Replit deploy steps, env setup, and how to swap mock data for live API later
+
+OUTPUT FORMAT:
+1. Complete file tree
+2. `package.json` + `next.config.js` + `tailwind.config.ts` + `tsconfig.json`
+3. All layout & page files
+4. All components (exact code)
+5. `lib/mockFeed.ts` + `lib/utils.ts`
+6. `README.md` with Replit deployment instructions
+Generate everything in full. Do not truncate. Use clear file separators. Stop after outputting all code.
+
