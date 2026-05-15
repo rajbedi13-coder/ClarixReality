@@ -3,7 +3,6 @@ import { db } from "@workspace/db";
 import { articlesTable, categoriesTable, articleUpvotesTable, articleSavesTable, commentsTable } from "@workspace/db";
 import { ListArticlesQueryParams, GetArticleParams, ToggleArticleUpvoteParams, ToggleArticleSaveParams } from "@workspace/api-zod";
 import { eq, ilike, and, desc, or, sql } from "drizzle-orm";
-import { fetchAndStoreNews } from "../lib/newsFetcher";
 
 const router = Router();
 
@@ -48,11 +47,14 @@ router.get("/articles", async (req, res) => {
   const sessionId = getSessionId(req);
   const offset = (page - 1) * limit;
 
-  const conditions = [];
+  const conditions = [eq(articlesTable.reviewStatus, "approved" as const)];
   if (category && category !== "all") conditions.push(eq(articlesTable.categorySlug, category));
-  if (search) conditions.push(or(ilike(articlesTable.headline, `%${search}%`), ilike(articlesTable.summary, `%${search}%`)));
+  if (search) {
+    const s = or(ilike(articlesTable.headline, `%${search}%`), ilike(articlesTable.summary, `%${search}%`));
+    if (s) conditions.push(s);
+  }
 
-  const where = conditions.length > 0 ? and(...conditions) : undefined;
+  const where = and(...conditions);
   const articles = await db.select().from(articlesTable)
     .where(where)
     .orderBy(desc(articlesTable.publishedAt))
@@ -68,7 +70,7 @@ router.get("/articles", async (req, res) => {
 router.get("/articles/featured", async (req, res) => {
   const sessionId = getSessionId(req);
   const articles = await db.select().from(articlesTable)
-    .where(eq(articlesTable.isFeatured, true))
+    .where(and(eq(articlesTable.isFeatured, true), eq(articlesTable.reviewStatus, "approved" as const)))
     .orderBy(desc(articlesTable.publishedAt))
     .limit(3);
   const enriched = await Promise.all(articles.map(a => enrichArticle(a, sessionId)));
@@ -78,26 +80,22 @@ router.get("/articles/featured", async (req, res) => {
 router.get("/articles/trending", async (req, res) => {
   const sessionId = getSessionId(req);
   const articles = await db.select().from(articlesTable)
+    .where(eq(articlesTable.reviewStatus, "approved" as const))
     .orderBy(desc(articlesTable.upvotes))
     .limit(6);
   const enriched = await Promise.all(articles.map(a => enrichArticle(a, sessionId)));
   res.json(enriched);
 });
 
-router.post("/articles/refresh", async (req, res) => {
-  try {
-    const inserted = await fetchAndStoreNews();
-    res.json({ inserted, message: `Fetched latest news — ${inserted} new articles added` });
-  } catch (err: any) {
-    res.status(500).json({ inserted: 0, message: "Refresh failed: " + (err?.message ?? "unknown error") });
-  }
-});
+// /articles/refresh removed — public ingestion is now admin-gated.
+// Use POST /api/admin/ingest (requires ADMIN_TOKEN in production).
 
 router.get("/articles/:id", async (req, res): Promise<void> => {
   const parsed = GetArticleParams.safeParse({ id: Number(req.params.id) });
   if (!parsed.success) { res.status(400).json({ error: "Invalid id" }); return; }
   const sessionId = getSessionId(req);
-  const [article] = await db.select().from(articlesTable).where(eq(articlesTable.id, parsed.data.id));
+  const [article] = await db.select().from(articlesTable)
+    .where(and(eq(articlesTable.id, parsed.data.id), eq(articlesTable.reviewStatus, "approved" as const)));
   if (!article) { res.status(404).json({ error: "Not found" }); return; }
   const enriched = await enrichArticle(article, sessionId);
   res.json(enriched);
@@ -155,7 +153,10 @@ router.get("/saved", async (req, res): Promise<void> => {
   if (saves.length === 0) { res.json([]); return; }
   const ids = saves.map(s => s.articleId);
   const articles = await db.select().from(articlesTable)
-    .where(sql`${articlesTable.id} = ANY(${ids})`);
+    .where(and(
+      sql`${articlesTable.id} = ANY(${ids})`,
+      eq(articlesTable.reviewStatus, "approved" as const),
+    ));
   const enriched = await Promise.all(articles.map(a => enrichArticle(a, sessionId)));
   res.json(enriched);
 });

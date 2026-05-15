@@ -12,6 +12,7 @@ import SignUp from "@/pages/signup";
 import Pricing from "@/pages/pricing";
 import Explore from "@/pages/explore";
 import Archive from "@/pages/archive";
+import Admin from "@/pages/admin";
 import { Layout } from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ function Router() {
         <Route path="/pricing" component={Pricing} />
         <Route path="/explore" component={Explore} />
         <Route path="/archive" component={Archive} />
+        <Route path="/admin" component={Admin} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

@@ -3,7 +3,9 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
-import { startNewsPoller } from "./lib/newsFetcher";
+// Legacy poller disabled — superseded by the source-based ingestion pipeline
+// (see ./ingestion/scheduler.ts) which routes new articles through admin review.
+// import { startNewsPoller } from "./lib/newsFetcher";
 
 const app: Express = express();
 
@@ -32,6 +34,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-startNewsPoller(15 * 60 * 1000);
+// startNewsPoller disabled — see comment above.
 
 export default app;

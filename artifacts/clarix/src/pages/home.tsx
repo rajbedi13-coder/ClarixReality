@@ -9,6 +9,7 @@ import { Link, useSearch } from "wouter";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { QuoteFragment, PullQuote } from "@/components/quote-fragment";
+import { TrustSignals } from "@/components/trust-signals";
 import { quoteOfTheHour, randomQuote, QUOTES } from "@/lib/quotes";
 
 const PAGE_SIZE = 20;
@@ -334,6 +335,9 @@ export default function Home() {
               </Link>
             </section>
           )}
+
+          {/* ── Editorial discipline / trust strip ── */}
+          {!isFiltered && <TrustSignals />}
 
           {/* ── Closing editorial fragment ── */}
           {!isFiltered && allArticles.length > 0 && (

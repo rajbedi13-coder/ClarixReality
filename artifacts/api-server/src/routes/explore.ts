@@ -50,9 +50,9 @@ router.get("/articles/explore", async (req, res) => {
   const skipIds = skipRaw ? skipRaw.split(",").map(Number).filter(Number.isFinite) : [];
   const preferred = preferRaw ? preferRaw.split(",").map(s => s.trim()).filter(Boolean) : [];
 
-  const conditions = [];
+  const conditions = [eq(articlesTable.reviewStatus, "approved" as const)];
   if (skipIds.length > 0) conditions.push(notInArray(articlesTable.id, skipIds));
-  const where = conditions.length ? and(...conditions) : undefined;
+  const where = and(...conditions);
 
   // Pull a generous random pool, then apply preference weighting in app code
   const pool = await db.select().from(articlesTable)
@@ -85,7 +85,7 @@ router.get("/archive", async (req, res) => {
   const limit = Math.min(Math.max(Number(req.query.limit ?? 24), 1), 60);
   const offset = (page - 1) * limit;
 
-  const conditions = [];
+  const conditions: any[] = [eq(articlesTable.reviewStatus, "approved" as const)];
   if (contentType && contentType !== "all") conditions.push(eq(articlesTable.contentType, contentType as any));
   if (author && author !== "all") conditions.push(eq(articlesTable.author, author));
   if (decadeRaw && Number.isFinite(decadeRaw)) {
@@ -105,7 +105,7 @@ router.get("/archive", async (req, res) => {
     ));
   }
 
-  const where = conditions.length ? and(...conditions) : undefined;
+  const where = and(...conditions);
 
   const articles = await db.select().from(articlesTable)
     .where(where)
@@ -119,7 +119,7 @@ router.get("/archive", async (req, res) => {
 
 router.get("/archive/authors", async (_req, res) => {
   const rows = await db.selectDistinct({ author: articlesTable.author }).from(articlesTable)
-    .where(sql`${articlesTable.author} IS NOT NULL`)
+    .where(and(sql`${articlesTable.author} IS NOT NULL`, eq(articlesTable.reviewStatus, "approved" as const)))
     .orderBy(articlesTable.author);
   res.json(rows.map(r => r.author).filter(Boolean));
 });
