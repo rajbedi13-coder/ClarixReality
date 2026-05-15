@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useSearch } from "wouter";
-import { useGetCurrentUser, useSignOut, useGetTicker, useListCategories } from "@workspace/api-client-react";
+import { useGetCurrentUser, useSignOut, useListCategories } from "@workspace/api-client-react";
 import { useTheme } from "./theme-provider";
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -79,11 +79,8 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Category navigation bar (mobile + desktop) */}
+        {/* Category navigation bar (only on Brief / home) */}
         <CategoryBar />
-
-        {/* Ticker */}
-        <Ticker />
       </header>
 
       <main className="flex-1">{children}</main>
@@ -126,6 +123,8 @@ function NavLink({ href, children, active }: { href: string; children: ReactNode
   );
 }
 
+/* A whisper-quiet section bar. Only renders on the home / brief route, with
+   smaller type, no badges, and no active-fill — keeps the page calm. */
 function CategoryBar() {
   const { data: categories } = useListCategories();
   const [location] = useLocation();
@@ -134,22 +133,26 @@ function CategoryBar() {
   const activeSlug = params.get("category");
   const onHome = location === "/";
 
-  if (!categories || categories.length === 0) return null;
+  if (!onHome || !categories || categories.length === 0) return null;
 
   return (
-    <div className="border-t border-border bg-background/80">
-      <div className="max-w-screen-2xl mx-auto overflow-x-auto scrollbar-none">
-        <nav className="flex items-stretch gap-0 px-2 md:px-6 min-w-max">
-          <CategoryNavLink href="/" active={onHome && !activeSlug} icon="◈" label="All" />
+    <div className="border-t border-border/60">
+      <div className="max-w-screen-xl mx-auto overflow-x-auto scrollbar-none">
+        <nav className="flex items-center gap-6 md:gap-8 px-6 py-2.5 min-w-max font-mono text-[10px] uppercase tracking-[0.18em]">
+          <Link
+            href="/"
+            className={!activeSlug ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}
+          >
+            All
+          </Link>
           {categories.map((cat) => (
-            <CategoryNavLink
+            <Link
               key={cat.id}
               href={`/?category=${cat.slug}`}
-              active={onHome && activeSlug === cat.slug}
-              icon={cat.icon}
-              label={cat.name}
-              count={cat.articleCount}
-            />
+              className={activeSlug === cat.slug ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}
+            >
+              {cat.name}
+            </Link>
           ))}
         </nav>
       </div>
@@ -157,44 +160,3 @@ function CategoryBar() {
   );
 }
 
-function CategoryNavLink({ href, active, icon, label, count }: { href: string; active: boolean; icon: string; label: string; count?: number }) {
-  return (
-    <Link
-      href={href}
-      className={`group flex items-center gap-2 px-3 md:px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] whitespace-nowrap border-b-2 transition-colors ${
-        active
-          ? "border-accent text-foreground bg-accent/5"
-          : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-      }`}
-    >
-      <span className={active ? "text-accent" : "text-muted-foreground/70 group-hover:text-accent/70"}>{icon}</span>
-      <span className="font-sans normal-case tracking-normal text-[13px]">{label}</span>
-      {count !== undefined && count > 0 && (
-        <span className="text-[9px] text-muted-foreground/50 font-mono">{count}</span>
-      )}
-    </Link>
-  );
-}
-
-function Ticker() {
-  const { data: items } = useGetTicker();
-  if (!items || items.length === 0) return null;
-
-  return (
-    <div className="border-t border-border bg-surface overflow-hidden h-8 flex items-center">
-      <div className="shrink-0 px-4 border-r border-border h-full flex items-center">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-accent">Live</span>
-      </div>
-      <div className="flex-1 overflow-hidden relative">
-        <div className="animate-marquee whitespace-nowrap flex gap-12 items-center font-mono text-[11px] text-muted-foreground px-6">
-          {[...items, ...items].map((item, i) => (
-            <span key={i} className="flex items-center gap-2">
-              <span className="text-border">—</span>
-              {item.headline}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
