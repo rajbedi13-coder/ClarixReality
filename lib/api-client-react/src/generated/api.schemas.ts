@@ -16,6 +16,7 @@ export interface Article {
   headline: string;
   summary: string;
   source: string;
+  sourceUrl?: string;
   publishedAt: string;
   readTime: string;
   sentiment: string;
@@ -24,6 +25,8 @@ export interface Article {
   commentCount: number;
   isFeatured: boolean;
   icon?: string;
+  /** @nullable */
+  imageUrl?: string | null;
   isSaved?: boolean;
   isUpvoted?: boolean;
 }
@@ -46,6 +49,8 @@ export interface ArticleDetail {
   commentCount: number;
   isFeatured: boolean;
   icon?: string;
+  /** @nullable */
+  imageUrl?: string | null;
   isSaved?: boolean;
   isUpvoted?: boolean;
 }
@@ -95,6 +100,11 @@ export interface PlatformStats {
 export interface TickerItem {
   id: number;
   headline: string;
+}
+
+export interface RefreshResult {
+  inserted: number;
+  message: string;
 }
 
 export interface UpvoteResult {

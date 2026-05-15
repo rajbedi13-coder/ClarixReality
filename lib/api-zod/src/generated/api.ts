@@ -37,6 +37,7 @@ export const ListArticlesResponse = zod.object({
   "headline": zod.string(),
   "summary": zod.string(),
   "source": zod.string(),
+  "sourceUrl": zod.string().optional(),
   "publishedAt": zod.string(),
   "readTime": zod.string(),
   "sentiment": zod.string(),
@@ -45,6 +46,7 @@ export const ListArticlesResponse = zod.object({
   "commentCount": zod.number(),
   "isFeatured": zod.boolean(),
   "icon": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
   "isUpvoted": zod.boolean().optional()
 })),
@@ -64,6 +66,7 @@ export const ListFeaturedArticlesResponseItem = zod.object({
   "headline": zod.string(),
   "summary": zod.string(),
   "source": zod.string(),
+  "sourceUrl": zod.string().optional(),
   "publishedAt": zod.string(),
   "readTime": zod.string(),
   "sentiment": zod.string(),
@@ -72,6 +75,7 @@ export const ListFeaturedArticlesResponseItem = zod.object({
   "commentCount": zod.number(),
   "isFeatured": zod.boolean(),
   "icon": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
   "isUpvoted": zod.boolean().optional()
 })
@@ -88,6 +92,7 @@ export const ListTrendingArticlesResponseItem = zod.object({
   "headline": zod.string(),
   "summary": zod.string(),
   "source": zod.string(),
+  "sourceUrl": zod.string().optional(),
   "publishedAt": zod.string(),
   "readTime": zod.string(),
   "sentiment": zod.string(),
@@ -96,6 +101,7 @@ export const ListTrendingArticlesResponseItem = zod.object({
   "commentCount": zod.number(),
   "isFeatured": zod.boolean(),
   "icon": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
   "isUpvoted": zod.boolean().optional()
 })
@@ -127,6 +133,7 @@ export const GetArticleResponse = zod.object({
   "commentCount": zod.number(),
   "isFeatured": zod.boolean(),
   "icon": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
   "isUpvoted": zod.boolean().optional()
 })
@@ -220,6 +227,7 @@ export const ListSavedArticlesResponseItem = zod.object({
   "headline": zod.string(),
   "summary": zod.string(),
   "source": zod.string(),
+  "sourceUrl": zod.string().optional(),
   "publishedAt": zod.string(),
   "readTime": zod.string(),
   "sentiment": zod.string(),
@@ -228,6 +236,7 @@ export const ListSavedArticlesResponseItem = zod.object({
   "commentCount": zod.number(),
   "isFeatured": zod.boolean(),
   "icon": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
   "isSaved": zod.boolean().optional(),
   "isUpvoted": zod.boolean().optional()
 })
@@ -266,6 +275,15 @@ export const GetTickerResponseItem = zod.object({
   "headline": zod.string()
 })
 export const GetTickerResponse = zod.array(GetTickerResponseItem)
+
+
+/**
+ * @summary Trigger a manual news refresh from RSS feeds
+ */
+export const RefreshNewsResponse = zod.object({
+  "inserted": zod.number(),
+  "message": zod.string()
+})
 
 
 /**

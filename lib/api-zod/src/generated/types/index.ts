@@ -19,6 +19,7 @@ export * from './messageResult';
 export * from './newsletterInput';
 export * from './newsletterResult';
 export * from './platformStats';
+export * from './refreshResult';
 export * from './saveResult';
 export * from './signInInput';
 export * from './signUpInput';

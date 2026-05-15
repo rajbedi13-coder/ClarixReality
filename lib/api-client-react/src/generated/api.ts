@@ -33,6 +33,7 @@ import type {
   NewsletterInput,
   NewsletterResult,
   PlatformStats,
+  RefreshResult,
   SaveResult,
   SignInInput,
   SignUpInput,
@@ -1111,6 +1112,76 @@ export function useGetTicker<TData = Awaited<ReturnType<typeof getTicker>>, TErr
 
 
 
+
+export const getRefreshNewsUrl = () => {
+
+
+
+
+  return `/api/articles/refresh`
+}
+
+/**
+ * @summary Trigger a manual news refresh from RSS feeds
+ */
+export const refreshNews = async ( options?: RequestInit): Promise<RefreshResult> => {
+
+  return customFetch<RefreshResult>(getRefreshNewsUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRefreshNewsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshNews>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof refreshNews>>, TError,void, TContext> => {
+
+const mutationKey = ['refreshNews'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof refreshNews>>, void> = () => {
+
+
+          return  refreshNews(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RefreshNewsMutationResult = NonNullable<Awaited<ReturnType<typeof refreshNews>>>
+
+    export type RefreshNewsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Trigger a manual news refresh from RSS feeds
+ */
+export const useRefreshNews = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshNews>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof refreshNews>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRefreshNewsMutationOptions(options));
+    }
 
 export const getSubscribeNewsletterUrl = () => {
 

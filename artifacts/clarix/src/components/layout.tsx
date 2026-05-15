@@ -10,7 +10,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const { theme, setTheme } = useTheme();
 
   const handleSignOut = () => {
-    signOut.mutate({}, {
+    signOut.mutate(undefined, {
       onSuccess: () => {
         localStorage.removeItem("token");
         setLocation("/signin");

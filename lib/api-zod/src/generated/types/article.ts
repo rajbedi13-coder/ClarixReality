@@ -13,6 +13,7 @@ export interface Article {
   headline: string;
   summary: string;
   source: string;
+  sourceUrl?: string;
   publishedAt: string;
   readTime: string;
   sentiment: string;
@@ -21,6 +22,8 @@ export interface Article {
   commentCount: number;
   isFeatured: boolean;
   icon?: string;
+  /** @nullable */
+  imageUrl?: string | null;
   isSaved?: boolean;
   isUpvoted?: boolean;
 }

@@ -24,6 +24,8 @@ export interface ArticleDetail {
   commentCount: number;
   isFeatured: boolean;
   icon?: string;
+  /** @nullable */
+  imageUrl?: string | null;
   isSaved?: boolean;
   isUpvoted?: boolean;
 }

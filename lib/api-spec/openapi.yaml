@@ -279,6 +279,19 @@ paths:
                 items:
                   $ref: "#/components/schemas/TickerItem"
 
+  /articles/refresh:
+    post:
+      operationId: refreshNews
+      tags: [articles]
+      summary: Trigger a manual news refresh from RSS feeds
+      responses:
+        "200":
+          description: Refresh result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshResult"
+
   /newsletter/subscribe:
     post:
       operationId: subscribeNewsletter
@@ -394,6 +407,8 @@ components:
           type: string
         source:
           type: string
+        sourceUrl:
+          type: string
         publishedAt:
           type: string
         readTime:
@@ -410,6 +425,8 @@ components:
           type: boolean
         icon:
           type: string
+        imageUrl:
+          type: ["string", "null"]
         isSaved:
           type: boolean
         isUpvoted:
@@ -455,6 +472,8 @@ components:
           type: boolean
         icon:
           type: string
+        imageUrl:
+          type: ["string", "null"]
         isSaved:
           type: boolean
         isUpvoted:
@@ -547,6 +566,15 @@ components:
         id:
           type: integer
         headline:
+          type: string
+
+    RefreshResult:
+      type: object
+      required: [inserted, message]
+      properties:
+        inserted:
+          type: integer
+        message:
           type: string
 
     UpvoteResult:

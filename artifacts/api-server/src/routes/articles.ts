@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { articlesTable, categoriesTable, articleUpvotesTable, articleSavesTable, commentsTable } from "@workspace/db";
 import { ListArticlesQueryParams, GetArticleParams, ToggleArticleUpvoteParams, ToggleArticleSaveParams } from "@workspace/api-zod";
 import { eq, ilike, and, desc, or, sql } from "drizzle-orm";
+import { fetchAndStoreNews } from "../lib/newsFetcher";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ function formatTimeAgo(date: Date): string {
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
+  if (diffMins < 1) return "just now";
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   return `${diffDays}d ago`;
@@ -68,7 +70,7 @@ router.get("/articles/featured", async (req, res) => {
   const articles = await db.select().from(articlesTable)
     .where(eq(articlesTable.isFeatured, true))
     .orderBy(desc(articlesTable.publishedAt))
-    .limit(4);
+    .limit(3);
   const enriched = await Promise.all(articles.map(a => enrichArticle(a, sessionId)));
   res.json(enriched);
 });
@@ -80,6 +82,15 @@ router.get("/articles/trending", async (req, res) => {
     .limit(6);
   const enriched = await Promise.all(articles.map(a => enrichArticle(a, sessionId)));
   res.json(enriched);
+});
+
+router.post("/articles/refresh", async (req, res) => {
+  try {
+    const inserted = await fetchAndStoreNews();
+    res.json({ inserted, message: `Fetched latest news — ${inserted} new articles added` });
+  } catch (err: any) {
+    res.status(500).json({ inserted: 0, message: "Refresh failed: " + (err?.message ?? "unknown error") });
+  }
 });
 
 router.get("/articles/:id", async (req, res): Promise<void> => {

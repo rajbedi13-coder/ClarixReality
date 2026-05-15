@@ -27,6 +27,8 @@ export const articlesTable = pgTable("articles", {
   commentCount: integer("comment_count").notNull().default(0),
   isFeatured: boolean("is_featured").notNull().default(false),
   icon: text("icon").notNull().default("◈"),
+  imageUrl: text("image_url"),
+  externalId: text("external_id").unique(),
   publishedAt: timestamp("published_at").notNull().defaultNow(),
 });
 
