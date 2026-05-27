@@ -8,11 +8,6 @@
       "destination": "/api/index"
     }
   ],
-  "functions": {
-    "api/index.ts": {
-      "runtime": "@vercel/node@5"
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
